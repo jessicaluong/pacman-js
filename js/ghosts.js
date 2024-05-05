@@ -35,7 +35,7 @@ class Ghost {
     this.ctx.save();
 
     // Transform image if ghost is moving left
-    if (this.lastDirection.dx === -1) {
+    if (this.lastDirection.dx === -1 * this.velocity) {
       this.ctx.scale(-1, 1);
       this.ctx.translate(-2 * (this.position.x + this.cellSize / 2), 0);
     }
