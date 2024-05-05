@@ -120,6 +120,10 @@ class GhostManager {
     this.ghosts.forEach((ghost) => ghost.move());
     this.ghosts.forEach((ghost) => ghost.draw());
   }
+
+  draw() {
+    this.ghosts.forEach((ghost) => ghost.draw());
+  }
 }
 
 export { Ghost, GhostManager };

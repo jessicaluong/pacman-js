@@ -5,26 +5,51 @@ import { PelletManager } from "./pelletManager.js";
 
 export const cellSize = 20;
 
-export const pacmanImages = [
-  document.getElementById("pacman_opened"),
-  document.getElementById("pacman_closed"),
+export const imageDetails = [
+  { id: "pacman_opened", src: "assets/pacman_opened.png" },
+  { id: "pacman_closed", src: "assets/pacman_closed.png" },
+  { id: "pinky", src: "assets/pinky.png" },
+  { id: "inky", src: "assets/inky.png" },
+  { id: "blinky", src: "assets/blinky.png" },
+  { id: "clyde", src: "assets/clyde.png" },
+  { id: "frightened_blue", src: "assets/frightened_blue.png" },
+  { id: "frightened_white", src: "assets/frightened_white.png" },
 ];
 
-const ghostImages = [
-  document.getElementById("inky"),
-  document.getElementById("pinky"),
-  document.getElementById("clyde"),
-  document.getElementById("blinky"),
-  document.getElementById("frightened_white"),
-  document.getElementById("frightened_blue"),
-];
+export let pacmanImages = [];
+export let ghostDetails = [];
 
-export const ghostDetails = [
-  { name: "inky", position: { x: 9, y: 11 }, image: ghostImages[0] },
-  { name: "pinky", position: { x: 10, y: 11 }, image: ghostImages[1] },
-  { name: "clyde", position: { x: 11, y: 11 }, image: ghostImages[2] },
-  { name: "blinky", position: { x: 10, y: 8 }, image: ghostImages[3] },
-];
+let ghostImages = {};
+
+export function loadImages(callback) {
+  let loadedImages = 0;
+  let totalImages = imageDetails.length;
+
+  function imageLoaded() {
+    loadedImages++;
+    if (loadedImages === totalImages) {
+      callback(); // Call the start game function once all images are loaded
+    }
+  }
+
+  imageDetails.forEach((detail) => {
+    const img = new Image();
+    img.onload = imageLoaded;
+    img.src = detail.src;
+    if (detail.id.includes("pacman")) {
+      pacmanImages.push(img);
+    } else {
+      ghostImages[detail.id] = img;
+    }
+  });
+
+  ghostDetails = [
+    { name: "inky", position: { x: 9, y: 11 }, image: ghostImages["inky"] },
+    { name: "pinky", position: { x: 10, y: 11 }, image: ghostImages["pinky"] },
+    { name: "clyde", position: { x: 11, y: 11 }, image: ghostImages["clyde"] },
+    { name: "blinky", position: { x: 10, y: 8 }, image: ghostImages["blinky"] },
+  ];
+}
 
 // 0 - empty
 // 1 - wall

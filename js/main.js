@@ -2,6 +2,7 @@ import {
   cellSize,
   pacmanImages,
   ghostDetails,
+  loadImages,
   setupGameEnvironment,
 } from "./setup.js";
 import { Pacman } from "./pacman.js";
@@ -43,21 +44,6 @@ function createGhosts() {
 
 const checkGameOver = () =>
   (gameOver = pelletManager.pelletCount === 0 || gameStateDisplay.lives < 0);
-
-function restartGame() {
-  cancelAnimationFrame(requestId);
-  gameCanvas.removeEventListener("click", clickListener);
-  gameCanvas.removeEventListener("mousemove", mouseMoveListener);
-  gameCanvas.style.cursor = "default";
-  pelletManager.reset();
-  mazeManager.resetMaze();
-  gameStateDisplay.reset();
-  gameOver = false;
-  pacman = createPacman();
-  ghosts = createGhosts();
-  ghostManager = new GhostManager(ghosts);
-  requestAnimationFrame(animate);
-}
 
 function displayGameOver() {
   gameCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
@@ -184,6 +170,41 @@ addEventListener("keydown", (event) => {
   }
 });
 
+function restartGame() {
+  cancelAnimationFrame(requestId);
+  gameCanvas.removeEventListener("click", clickListener);
+  gameCanvas.removeEventListener("mousemove", mouseMoveListener);
+  gameCanvas.style.cursor = "default";
+  gameOver = false;
+  initializeGame();
+}
+
+function initializeGame() {
+  // Create all game components
+  pacman = createPacman();
+  ghosts = createGhosts();
+  ghostManager = new GhostManager(ghosts);
+  pelletManager.reset();
+  mazeManager.resetMaze();
+  gameStateDisplay.reset();
+
+  drawInitialGameState();
+
+  setTimeout(startGame, 1000);
+}
+
+function drawInitialGameState() {
+  gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+  pelletManager.draw();
+  pacman.draw();
+  ghostManager.draw();
+}
+
+function startGame() {
+  cancelAnimationFrame(requestId);
+  requestAnimationFrame(animate);
+}
+
 function animate() {
   if (gameOver) {
     displayGameOver();
@@ -197,8 +218,4 @@ function animate() {
   }
 }
 
-// Create characters and start game
-pacman = createPacman();
-ghosts = createGhosts();
-ghostManager = new GhostManager(ghosts);
-requestAnimationFrame(animate);
+loadImages(initializeGame);
