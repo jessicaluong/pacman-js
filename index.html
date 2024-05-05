@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pac-Man</title>
+    <link rel="icon" type="image/x-icon" href="/assets/pacman_closed.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="flex-container">
+      <h3>Score: <span id="score">0</span></h3>
+      <div id="canvas-container">
+        <canvas id="backgroundCanvas"></canvas>
+        <canvas id="gameCanvas"></canvas>
+      </div>
+      <div id="lives"></div>
+    </div>
+
+    <div style="display: none">
+      <img
+        id="pacman_closed"
+        src="assets/pacman_closed.png"
+        width="20"
+        height="20"
+      />
+      <img
+        id="pacman_opened"
+        src="assets/pacman_opened.png"
+        width="20"
+        height="20"
+      />
+      <img id="pinky" src="assets/pinky.png" width="20" height="20" />
+      <img id="inky" src="assets/inky.png" width="20" height="20" />
+      <img id="blinky" src="assets/blinky.png" width="20" height="20" />
+      <img id="clyde" src="assets/clyde.png" width="20" height="20" />
+      <img
+        id="frightened_blue"
+        src="assets/frightened_blue.png"
+        width="20"
+        height="20"
+      />
+      <img
+        id="frightened_white"
+        src="assets/frightened_white.png"
+        width="20"
+        height="20"
+      />
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/wallManager.js"></script>
+    <script type="module" src="js/mazeManager.js"></script>
+    <script type="module" src="js/gameStateDisplay.js"></script>
+    <script type="module" src="js/pelletManager.js"></script>
+    <script type="module" src="js/setup.js"></script>
+    <script type="module" src="js/pacman.js"></script>
+    <script type="module" src="js/ghosts.js"></script>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+body {
+  background-color: black;
+  color: #ccc;
+  font-family: "Roboto Mono", monospace;
+  display: flex;
+  justify-content: center;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+}
+
+h3 {
+  text-align: center;
+}
+
+#canvas-container {
+  position: relative;
+  height: 460px;
+  width: 420px;
+}
+
+#gameCanvas,
+#backgroundCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#lives {
+  padding-top: 15px;
+}
+
+.pacman-life {
+  width: 25px;
+  height: 25px;
+  background-image: url("/assets/pacman_closed.png");
+  display: inline-block;
+  background-size: cover;
+}
