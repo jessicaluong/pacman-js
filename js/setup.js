@@ -5,57 +5,15 @@ import { PelletManager } from "./pelletManager.js";
 
 export const cellSize = 20;
 
-export const imageDetails = [
-  { id: "pacman_opened", src: "assets/pacman_opened.png" },
-  { id: "pacman_closed", src: "assets/pacman_closed.png" },
-  { id: "pinky", src: "assets/pinky.png" },
-  { id: "inky", src: "assets/inky.png" },
-  { id: "blinky", src: "assets/blinky.png" },
-  { id: "clyde", src: "assets/clyde.png" },
-  { id: "frightened_blue", src: "assets/frightened_blue.png" },
-  { id: "frightened_white", src: "assets/frightened_white.png" },
-];
-
-export let pacmanImages = [];
-export let ghostDetails = [];
-
-let ghostImages = {};
-
-export function loadImages(callback) {
-  let loadedImages = 0;
-  let totalImages = imageDetails.length;
-
-  function imageLoaded() {
-    loadedImages++;
-    if (loadedImages === totalImages) {
-      callback(); // Call the start game function once all images are loaded
-    }
-  }
-
-  imageDetails.forEach((detail) => {
-    const img = new Image();
-    img.onload = imageLoaded;
-    img.src = detail.src;
-    if (detail.id.includes("pacman")) {
-      pacmanImages.push(img);
-    } else {
-      ghostImages[detail.id] = img;
-    }
-  });
-
-  ghostDetails = [
-    { name: "inky", position: { x: 9, y: 11 }, image: ghostImages["inky"] },
-    { name: "pinky", position: { x: 10, y: 11 }, image: ghostImages["pinky"] },
-    { name: "clyde", position: { x: 11, y: 11 }, image: ghostImages["clyde"] },
-    { name: "blinky", position: { x: 10, y: 8 }, image: ghostImages["blinky"] },
-  ];
-}
-
-// 0 - empty
-// 1 - wall
-// 2 - pellet
-// 3 - ghost lair
-// 4 - power pellet
+/**
+ * 0 - empty
+ * 1 - wall
+ * 2 - pellet
+ * 3 - ghost lair
+ * 4 - power pellet
+ * 5 - ghost lair door
+ * 6 - invisible wall
+ */
 const maze = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
@@ -82,10 +40,6 @@ const maze = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
-let mazeManager;
-let gameStateDisplay;
-let pelletManager;
-
 function initializeCanvas() {
   const backgroundCanvas = document.getElementById("backgroundCanvas");
   const gameCanvas = document.getElementById("gameCanvas");
@@ -98,24 +52,49 @@ function initializeCanvas() {
   return { bgCtx, gameCtx, gameCanvas };
 }
 
-function setupBackground(bgCtx, mazeManager, cellSize) {
-  const wallManager = new WallManager(bgCtx, mazeManager, cellSize);
-  wallManager.draw();
-}
-
 export function setupGameEnvironment() {
   const { bgCtx, gameCtx, gameCanvas } = initializeCanvas();
-  mazeManager = new MazeManager(maze);
-  gameStateDisplay = new GameStateDisplay();
-  pelletManager = new PelletManager(gameCtx, mazeManager, cellSize);
-  setupBackground(bgCtx, mazeManager, cellSize);
+
+  const mazeManager = new MazeManager(maze);
+  const gameStateDisplay = new GameStateDisplay();
+  const pelletManager = new PelletManager(gameCtx, mazeManager, cellSize);
+
+  const wallManager = new WallManager(bgCtx, mazeManager, cellSize);
+  wallManager.draw();
+
   gameStateDisplay.updateLifeIcons();
 
-  return {
-    mazeManager,
-    gameStateDisplay,
-    pelletManager,
-    gameCtx,
-    gameCanvas,
-  };
+  return { gameCtx, gameCanvas, mazeManager, gameStateDisplay, pelletManager };
+}
+
+export function loadImages() {
+  const imageDetails = [
+    { id: "pacman_opened", src: "assets/pacman_opened.png" },
+    { id: "pacman_closed", src: "assets/pacman_closed.png" },
+    { id: "pinky", src: "assets/pinky.png" },
+    { id: "inky", src: "assets/inky.png" },
+    { id: "blinky", src: "assets/blinky.png" },
+    { id: "clyde", src: "assets/clyde.png" },
+    { id: "frightened_blue", src: "assets/frightened_blue.png" },
+    { id: "frightened_white", src: "assets/frightened_white.png" },
+  ];
+
+  let loadedImages = 0;
+  let totalImages = imageDetails.length;
+  let images = {};
+
+  return new Promise((resolve, reject) => {
+    imageDetails.forEach((detail) => {
+      const img = new Image();
+      img.onload = () => {
+        images[detail.id] = img;
+        loadedImages++;
+        if (loadedImages === totalImages) {
+          resolve(images);
+        }
+      };
+      img.onerror = reject;
+      img.src = detail.src;
+    });
+  });
 }

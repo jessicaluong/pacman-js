@@ -14,10 +14,13 @@ class Ghost {
     this.mazeManager = mazeManager;
     this.cellSize = cellSize;
     this.image = image;
-    this.position = {
+
+    this.initialPosition = {
       x: position.x * this.cellSize,
       y: position.y * this.cellSize,
     }; // Convert grid coordinates to pixel coordinates
+    this.position = { ...this.initialPosition };
+
     this.mode = mode;
     this.velocity = velocity;
     this.directions = [
@@ -27,6 +30,15 @@ class Ghost {
       { dx: 0, dy: 1 * this.velocity }, // Down
     ];
     this.lastDirection = {};
+  }
+
+  /**
+   * Set the ghost's properties to initial values. Used to restart game.
+   */
+  reset() {
+    this.position = { ...this.initialPosition };
+    this.mode = "random";
+    this.lastDirection = { dx: 0, dy: 0 };
   }
 
   draw() {
@@ -112,7 +124,6 @@ class GhostManager {
   constructor(ghosts) {
     this.ghosts = ghosts;
   }
-
   update() {
     this.ghosts.forEach((ghost) => ghost.move());
     this.ghosts.forEach((ghost) => ghost.draw());

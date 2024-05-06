@@ -11,17 +11,19 @@ export class Pacman {
     this.ctx = ctx;
     this.mazeManager = mazeManager;
     this.cellSize = cellSize;
-    this.position = {
+    this.radius = this.cellSize / 2;
+    this.onEatPellet = onEatPellet;
+    this.velocity = velocity;
+    this.images = images;
+
+    this.initialPosition = {
       x: position.x * this.cellSize,
       y: position.y * this.cellSize,
     }; // Convert grid coordinates to pixel coordinates
-    this.radius = this.cellSize / 2;
-
-    this.onEatPellet = onEatPellet;
+    this.position = { ...this.initialPosition };
 
     this.direction = "RIGHT";
     this.nextDirection = "RIGHT";
-    this.velocity = velocity;
     this.directionMap = {
       LEFT: { x: -1, y: 0 },
       RIGHT: { x: 1, y: 0 },
@@ -29,7 +31,18 @@ export class Pacman {
       DOWN: { x: 0, y: 1 },
     };
 
-    this.images = images;
+    this.animationFrame = 0;
+    this.currentImageIndex = 0;
+    this.currentImage = this.images[0];
+  }
+
+  /**
+   * Set the Pac-Man's properties to initial values. Used to restart game.
+   */
+  reset() {
+    this.position = { ...this.initialPosition };
+    this.direction = "RIGHT";
+    this.nextDirection = "RIGHT";
     this.animationFrame = 0;
     this.currentImageIndex = 0;
     this.currentImage = this.images[0];
@@ -90,7 +103,9 @@ export class Pacman {
   }
 
   changeDirectionIfPossible() {
-    if (this.direction === this.nextDirection) return;
+    if (this.direction === this.nextDirection) {
+      return;
+    }
     let originalDirection = this.direction;
     let originalPosition = { ...this.position };
     this.direction = this.nextDirection;
