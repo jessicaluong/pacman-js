@@ -52,7 +52,7 @@ class Game {
 
     this.drawInitialGameState();
     this.bindEvents();
-    setTimeout(() => this.startGame(), 1000);
+    setTimeout(() => this.startGame(), 2000);
   }
 
   drawInitialGameState() {
@@ -86,8 +86,6 @@ class Game {
   }
 
   restartGame() {
-    cancelAnimationFrame(this.requestId);
-
     this.gameCanvas.removeEventListener("click", this.clickListener);
     this.gameCanvas.removeEventListener("mousemove", this.mouseMoveListener);
     this.gameCanvas.style.cursor = "default";
@@ -102,7 +100,7 @@ class Game {
 
     this.drawInitialGameState();
 
-    setTimeout(() => this.startGame(), 1000);
+    setTimeout(() => this.startGame(), 2000);
   }
 
   checkGameOver() {
@@ -184,7 +182,7 @@ class Game {
         Math.abs(this.pacman.position.y - ghost.position.y) < tolerance
       ) {
         this.handleCollisionWithGhost(ghost);
-        this.collisionCooldown = 120;
+        this.collisionCooldown = 60;
       }
     });
   }
@@ -192,6 +190,8 @@ class Game {
   handleCollisionWithGhost(ghost) {
     if (ghost.mode === "random") {
       this.gameStateDisplay.decrementLives();
+      this.pacman.reset();
+      this.ghosts.forEach((ghost) => ghost.reset());
     } else {
       // Handle frightened ghost collision logic
     }

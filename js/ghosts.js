@@ -44,7 +44,8 @@ class Ghost {
   }
 
   /**
-   * Set the ghost's properties to initial values. Used to restart game.
+   * Resets ghost's state to its initial configuration.
+   * This method is invoked when the game restarts or when Pac-Man loses a life.
    */
   reset() {
     this.position = { ...this.initialPosition };
