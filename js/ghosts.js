@@ -1,11 +1,4 @@
 class Ghost {
-  static directions = [
-    { dx: -1, dy: 0 }, // Left
-    { dx: 1, dy: 0 }, // Right
-    { dx: 0, dy: -1 }, // Up
-    { dx: 0, dy: 1 }, // Down
-  ];
-
   constructor(
     name,
     ctx,
@@ -25,10 +18,15 @@ class Ghost {
       x: position.x * this.cellSize,
       y: position.y * this.cellSize,
     }; // Convert grid coordinates to pixel coordinates
-    this.lastDirection = Ghost.directions[2];
-
     this.mode = mode;
     this.velocity = velocity;
+    this.directions = [
+      { dx: -1 * this.velocity, dy: 0 }, // Left
+      { dx: 1 * this.velocity, dy: 0 }, // Right
+      { dx: 0, dy: -1 * this.velocity }, // Up
+      { dx: 0, dy: 1 * this.velocity }, // Down
+    ];
+    this.lastDirection = {};
   }
 
   draw() {
@@ -82,13 +80,12 @@ class Ghost {
   chooseRandomDirection() {
     let gameWidth = this.mazeManager.getMazeWidth() * this.cellSize;
 
-    let validMoves = Ghost.directions
+    let validMoves = this.directions
       .map((dir) => ({
-        dx: dir.dx * this.velocity,
-        dy: dir.dy * this.velocity,
-        newX:
-          (this.position.x + dir.dx * this.velocity + gameWidth) % gameWidth,
-        newY: this.position.y + dir.dy * this.velocity,
+        dx: dir.dx,
+        dy: dir.dy,
+        newX: (this.position.x + dir.dx + gameWidth) % gameWidth,
+        newY: this.position.y + dir.dy,
       }))
       .filter((dir) => !this.isCollideWithWall(dir.newX, dir.newY));
 
