@@ -1,4 +1,15 @@
 class Ghost {
+  /**
+   * Constructs a new instance of the Ghost class.
+   * @param {string} name - The name of the ghost.
+   * @param {CanvasRenderingContext2D} ctx - The canvas rendering context to draw the ghost.
+   * @param {MazeManager} mazeManager - The maze manager that handles maze logic like wall positions.
+   * @param {number} cellSize - The size of each cell in the maze, which dictates the scale of the game elements.
+   * @param {HTMLImageElement} image - The image representing the ghost.
+   * @param {{position: {x: number, y: number}}} initialPosition - The initial grid position of the ghost, provided as an object.
+   * @param {string} [mode='random'] - The behavior mode of the ghost, defaults to 'random'.
+   * @param {number} [velocity=2.0] - The movement speed of the ghost, defaulting to 2.0.
+   */
   constructor(
     name,
     ctx,
@@ -41,6 +52,10 @@ class Ghost {
     this.lastDirection = { dx: 0, dy: 0 };
   }
 
+  /**
+   * Draws the ghost on the canvas at its current position.
+   * The image is flipped horizontally when the ghost moves to the left to maintain correct orientation.
+   */
   draw() {
     this.ctx.save();
 
@@ -61,6 +76,12 @@ class Ghost {
     this.ctx.restore();
   }
 
+  /**
+   * Determines if moving the ghost to a new position results in a collision with a wall.
+   * @param {number} newX - The new x-coordinate after moving.
+   * @param {number} newY - The new y-coordinate after moving.
+   * @returns {boolean} - Returns true if the new position would collide with a wall, otherwise false.
+   */
   isCollideWithWall(newX, newY) {
     let positionsToCheck = [
       { x: newX, y: newY }, // Top-left corner
@@ -79,6 +100,10 @@ class Ghost {
     });
   }
 
+  /**
+   * Updates the ghost's position based on its mode.
+   * In 'random' mode, the ghost chooses a new direction randomly from the available valid moves.
+   */
   move() {
     switch (this.mode) {
       case "random":
@@ -89,6 +114,9 @@ class Ghost {
     }
   }
 
+  /**
+   * Chooses a random direction for the ghost to move, ensuring it doesn't immediately reverse direction or hit walls.
+   */
   chooseRandomDirection() {
     let gameWidth = this.mazeManager.getMazeWidth() * this.cellSize;
 
@@ -121,14 +149,26 @@ class Ghost {
 }
 
 class GhostManager {
+  /**
+   * Manages multiple ghost instances, updating and drawing each ghost.
+   * @param {Ghost[]} ghosts - An array of Ghost instances to manage.
+   */
   constructor(ghosts) {
     this.ghosts = ghosts;
   }
+
+  /**
+   * Calls the move and draw methods on each ghost in the list.
+   */
   update() {
     this.ghosts.forEach((ghost) => ghost.move());
     this.ghosts.forEach((ghost) => ghost.draw());
   }
 
+  /**
+   * Draws each ghost on the canvas.
+   * Used to to draw the initial game state.
+   */
   draw() {
     this.ghosts.forEach((ghost) => ghost.draw());
   }
