@@ -40,6 +40,12 @@ const maze = [
   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 ];
 
+/**
+ * Initializes the canvas elements for the game background and interactive layers.
+ * Sets up canvas dimensions and retrieves contexts for drawing.
+ * @returns {{bgCtx: CanvasRenderingContext2D, gameCtx: CanvasRenderingContext2D, gameCanvas: HTMLCanvasElement}}
+ *          Contexts and canvas for background and game layers.
+ */
 function initializeCanvas() {
   const backgroundCanvas = document.getElementById("backgroundCanvas");
   const gameCanvas = document.getElementById("gameCanvas");
@@ -52,6 +58,12 @@ function initializeCanvas() {
   return { bgCtx, gameCtx, gameCanvas };
 }
 
+/**
+ * Sets up the overall game environment, initializing all necessary managers and the canvas.
+ * Configures and prepares the game state, maze, and pellet management for the game start.
+ * @returns {{gameCtx: CanvasRenderingContext2D, gameCanvas: HTMLCanvasElement, mazeManager: MazeManager, gameStateDisplay: GameStateDisplay, pelletManager: PelletManager}}
+ *          The main components necessary for running the game.
+ */
 export function setupGameEnvironment() {
   const { bgCtx, gameCtx, gameCanvas } = initializeCanvas();
 
@@ -67,6 +79,12 @@ export function setupGameEnvironment() {
   return { gameCtx, gameCanvas, mazeManager, gameStateDisplay, pelletManager };
 }
 
+/**
+ * Loads all necessary game images asynchronously and returns a promise.
+ * @returns {Promise<Object>} A promise that resolves with an object containing all the loaded Image objects,
+ *                            indexed by their respective IDs provided in imageDetails. If any image fails to load,
+ *                            the promise rejects with an error.
+ */
 export function loadImages() {
   const imageDetails = [
     { id: "pacman_opened", src: "assets/pacman_opened.png" },
