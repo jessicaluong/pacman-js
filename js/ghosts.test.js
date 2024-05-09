@@ -12,7 +12,8 @@ function createMockImage(src) {
 
 describe("reset", () => {
   it("should reset properties to their initial values", () => {
-    const ghost = new Ghost("blinky", null, null, cellSize, null, {
+    const images = [createMockImage("path/to/ghost.png")];
+    const ghost = new Ghost("blinky", null, null, cellSize, images, {
       position: { x: 3, y: 3 },
     });
     ghost.reset();
@@ -34,7 +35,8 @@ describe("Ghost movement", () => {
     ];
 
     const mazeManager = new MazeManager(mockMaze);
-    const ghost = new Ghost("blinky", null, mazeManager, cellSize, null, {
+    const images = [createMockImage("path/to/ghost.png")];
+    const ghost = new Ghost("blinky", null, mazeManager, cellSize, images, {
       position: { x: 3, y: 3 },
     });
 
@@ -55,7 +57,8 @@ describe("Ghost movement", () => {
       [1, 1, 1],
     ];
     const mazeManager = new MazeManager(mockMaze);
-    const ghost = new Ghost("blinky", null, mazeManager, cellSize, null, {
+    const images = [createMockImage("path/to/ghost.png")];
+    const ghost = new Ghost("blinky", null, mazeManager, cellSize, images, {
       position: { x: 1, y: 1 },
     });
 
@@ -77,7 +80,8 @@ describe("Ghost movement", () => {
       [1, 1],
     ];
     const mazeManager = new MazeManager(mockMaze);
-    const ghost = new Ghost("blinky", null, mazeManager, cellSize, null, {
+    const images = [createMockImage("path/to/ghost.png")];
+    const ghost = new Ghost("blinky", null, mazeManager, cellSize, images, {
       position: { x: 0, y: 1 },
     });
 
@@ -100,7 +104,8 @@ describe("Ghost movement", () => {
     const mazeManager = new MazeManager(mockMaze);
 
     // Place ghost at the very edge of the maze using maze width
-    const ghost = new Ghost("blinky", null, mazeManager, cellSize, null, {
+    const images = [createMockImage("path/to/ghost.png")];
+    const ghost = new Ghost("blinky", null, mazeManager, cellSize, images, {
       position: { x: mazeManager.getMazeWidth(), y: 1 },
     });
 
@@ -121,11 +126,12 @@ describe("Ghost movement", () => {
       [1, 0, 0, 1],
       [1, 1, 1, 1],
     ];
+    const images = [createMockImage("path/to/ghost.png")];
     const mazeManager = new MazeManager(mockMaze);
     let ghost;
 
     beforeEach(() => {
-      ghost = new Ghost("blinky", null, mazeManager, cellSize, null, {
+      ghost = new Ghost("blinky", null, mazeManager, cellSize, images, {
         position: { x: 1, y: 1 },
       });
     });
@@ -146,7 +152,6 @@ describe("Ghost movement", () => {
 
 describe("Ghost drawn", () => {
   test("flips image when moving left", () => {
-    const image = [createMockImage("path/to/ghost.png")];
     const mockCtx = {
       save: jest.fn(),
       restore: jest.fn(),
@@ -154,7 +159,8 @@ describe("Ghost drawn", () => {
       scale: jest.fn(),
       drawImage: jest.fn(),
     };
-    const ghost = new Ghost("blinky", mockCtx, null, cellSize, image, {
+    const images = [createMockImage("path/to/ghost.png")];
+    const ghost = new Ghost("blinky", mockCtx, null, cellSize, images, {
       position: { x: 1, y: 1 },
     });
 
@@ -165,7 +171,7 @@ describe("Ghost drawn", () => {
     expect(mockCtx.scale).toHaveBeenCalledWith(-1, 1);
     expect(mockCtx.translate).toHaveBeenCalledWith(-60, 0);
     expect(mockCtx.drawImage).toHaveBeenCalledWith(
-      ghost.image,
+      ghost.images[0],
       20,
       20,
       cellSize,

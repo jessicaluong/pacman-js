@@ -15,7 +15,7 @@ class Ghost {
     ctx,
     mazeManager,
     cellSize,
-    image,
+    images,
     { position },
     mode = "random",
     velocity = 2.0
@@ -24,7 +24,8 @@ class Ghost {
     this.ctx = ctx;
     this.mazeManager = mazeManager;
     this.cellSize = cellSize;
-    this.image = image;
+    this.images = images;
+    this.currentImage = this.images[0];
 
     this.initialPosition = {
       x: position.x * this.cellSize,
@@ -41,6 +42,48 @@ class Ghost {
       { dx: 0, dy: 1 * this.velocity }, // Down
     ];
     this.lastDirection = {};
+
+    this.frightenedTimer = null;
+    this.blinkTimer = null;
+    this.frightenedDuration = 10000; // 10 seconds
+    this.blinkDuration = 2000; //  2 seconds
+    this.blinkInterval = 300; // Blink every 300 ms
+  }
+
+  frighten() {
+    this.mode = "frighten";
+    this.currentImage = this.images[1];
+
+    if (this.frightenedTimer) {
+      clearTimeout(this.frightenedTimer);
+    }
+
+    this.frightenedTimer = setTimeout(() => {
+      this.startBlinking();
+    }, this.frightenedDuration - this.blinkDuration);
+  }
+
+  startBlinking() {
+    if (this.blinkTimer) {
+      clearInterval(this.blinkTimer);
+    }
+
+    this.blinkTimer = setInterval(() => {
+      this.currentImage =
+        this.currentImage === this.images[1] ? this.images[2] : this.images[1];
+    }, this.blinkInterval);
+
+    setTimeout(() => {
+      this.endFrighten();
+    }, this.blinkDuration);
+  }
+
+  endFrighten() {
+    clearInterval(this.blinkTimer);
+    this.blinkTimer = null;
+    this.mode = "random";
+    this.currentImage = this.images[0];
+    this.frightenedTimer = null;
   }
 
   /**
@@ -67,7 +110,7 @@ class Ghost {
     }
 
     this.ctx.drawImage(
-      this.image,
+      this.currentImage,
       this.position.x,
       this.position.y,
       this.cellSize,
@@ -108,6 +151,10 @@ class Ghost {
   move() {
     switch (this.mode) {
       case "random":
+        this.chooseRandomDirection();
+        break;
+      case "frighten":
+        console.log("fright");
         this.chooseRandomDirection();
         break;
       default:
@@ -172,6 +219,14 @@ class GhostManager {
    */
   draw() {
     this.ghosts.forEach((ghost) => ghost.draw());
+  }
+
+  setMode() {
+    this.ghosts.forEach((ghost) => (ghost.mode = "frighten"));
+  }
+
+  frighten() {
+    this.ghosts.forEach((ghost) => ghost.frighten());
   }
 }
 

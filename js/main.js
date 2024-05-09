@@ -114,6 +114,7 @@ class Game {
       scoreValue = this.gameStateDisplay.pelletScore;
     } else if (this.mazeManager.hasPowerPellet(position.x, position.y)) {
       scoreValue = this.gameStateDisplay.powerPelletScore;
+      this.ghostManager.frighten();
     }
 
     if (scoreValue > 0) {
@@ -132,7 +133,11 @@ class Game {
         this.gameCtx,
         this.mazeManager,
         cellSize,
-        this.images["blinky"],
+        [
+          this.images["blinky"],
+          this.images["frightened_blue"],
+          this.images["frightened_white"],
+        ],
         {
           position: { x: 10, y: 8 },
         }
@@ -142,7 +147,11 @@ class Game {
         this.gameCtx,
         this.mazeManager,
         cellSize,
-        this.images["inky"],
+        [
+          this.images["inky"],
+          this.images["frightened_blue"],
+          this.images["frightened_white"],
+        ],
         {
           position: { x: 9, y: 11 },
         }
@@ -152,7 +161,11 @@ class Game {
         this.gameCtx,
         this.mazeManager,
         cellSize,
-        this.images["pinky"],
+        [
+          this.images["pinky"],
+          this.images["frightened_blue"],
+          this.images["frightened_white"],
+        ],
         {
           position: { x: 10, y: 11 },
         }
@@ -162,7 +175,11 @@ class Game {
         this.gameCtx,
         this.mazeManager,
         cellSize,
-        this.images["clyde"],
+        [
+          this.images["clyde"],
+          this.images["frightened_blue"],
+          this.images["frightened_white"],
+        ],
         {
           position: { x: 11, y: 11 },
         }
@@ -193,7 +210,9 @@ class Game {
       this.pacman.reset();
       this.ghosts.forEach((ghost) => ghost.reset());
     } else {
+      // ghost.mode === "frighten"
       // Handle frightened ghost collision logic
+      ghost.reset();
     }
   }
 
