@@ -21,7 +21,6 @@ class Game {
     this.requestId = null;
     this.mouseMoveListener = null;
     this.clickListener = null;
-    this.gameOver = false;
     this.collisionCooldown = 0;
     this.lastUpdateTime = null;
 
@@ -97,7 +96,11 @@ class Game {
     this.ghostManager.update(this.pacmanPosition, deltaTime);
     this.checkCollisionWithGhosts();
 
-    if (this.gameOver) {
+    if (
+      this.pelletManager.pelletCount === 0 ||
+      this.gameStateDisplay.lives < 0
+    ) {
+      console.log(this.pelletManager.pelletCount);
       cancelAnimationFrame(this.requestId);
       this.displayGameOver();
     } else {
@@ -110,23 +113,17 @@ class Game {
     this.gameCanvas.removeEventListener("click", this.clickListener);
     this.gameCanvas.removeEventListener("mousemove", this.mouseMoveListener);
     this.gameCanvas.style.cursor = "default";
-    this.gameOver = false;
 
     this.pacman.reset();
     this.ghosts.forEach((ghost) => ghost.reset());
 
-    this.pelletManager.reset();
     this.mazeManager.resetMaze();
+    this.pelletManager.reset();
     this.gameStateDisplay.reset();
 
     this.drawInitialGameState();
 
     setTimeout(() => this.startGame(), 2000);
-  }
-
-  checkGameOver() {
-    this.gameOver =
-      this.pelletManager.pelletCount === 0 || this.gameStateDisplay.lives < 0;
   }
 
   handleEatPellet(position) {
@@ -143,8 +140,6 @@ class Game {
       this.pelletManager.pelletCount--;
       this.gameStateDisplay.updateScore(scoreValue);
     }
-
-    this.checkGameOver();
   }
 
   createGhosts() {
