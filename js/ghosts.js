@@ -65,6 +65,11 @@ class Ghost {
       clearTimeout(this.frightenedTimer);
     }
 
+    if (this.blinkTimer) {
+      clearInterval(this.blinkTimer);
+      this.blinkTimer = null;
+    }
+
     this.frightenedTimer = setTimeout(() => {
       this.startBlinking();
     }, this.frightenedDuration - this.blinkDuration);
@@ -94,14 +99,19 @@ class Ghost {
    * Resets the ghost's image to the default state and clears any related timers.
    */
   endFrighten() {
-    clearInterval(this.blinkTimer);
-    this.blinkTimer = null;
+    if (this.blinkTimer) {
+      clearInterval(this.blinkTimer);
+      this.blinkTimer = null;
+    }
+    if (this.frightenedTimer) {
+      clearTimeout(this.frightenedTimer);
+      this.frightenedTimer = null;
+    }
+
     this.mode = "random";
     this.currentImage = this.images[0];
     this.frightenedTimer = null;
     this.lastDirection = { dx: 0, dy: 0 };
-
-    this.setupPathfindingGrid();
   }
 
   /**
@@ -109,8 +119,17 @@ class Ghost {
    * This method is invoked when the game restarts or when Pac-Man loses a life.
    */
   reset() {
+    if (this.blinkTimer) {
+      clearInterval(this.blinkTimer);
+      this.blinkTimer = null;
+    }
+    if (this.frightenedTimer) {
+      clearTimeout(this.frightenedTimer);
+      this.frightenedTimer = null;
+    }
     this.position = { ...this.initialPosition };
     this.mode = "random";
+    this.currentImage = this.images[0];
     this.lastDirection = { dx: 0, dy: 0 };
   }
 
