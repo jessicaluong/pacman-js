@@ -1,5 +1,3 @@
-import { Pacman } from "./pacman.js";
-
 class Ghost {
   /**
    * Constructs a new instance of the Ghost class.
