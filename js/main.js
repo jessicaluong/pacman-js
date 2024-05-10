@@ -21,9 +21,11 @@ class Game {
     this.requestId = null;
     this.mouseMoveListener = null;
     this.clickListener = null;
-
     this.gameOver = false;
     this.collisionCooldown = 0;
+    this.lastUpdateTime = null;
+
+    this.pacmanPosition = { x: 10, y: 13 };
 
     loadImages()
       .then((images) => {
@@ -40,7 +42,7 @@ class Game {
       this.gameCtx,
       this.mazeManager,
       cellSize,
-      { position: { x: 10, y: 13 } },
+      { position: this.pacmanPosition },
       this.handleEatPellet.bind(this),
       [this.images["pacman_opened"], this.images["pacman_closed"]]
     );
@@ -52,7 +54,7 @@ class Game {
 
     this.drawInitialGameState();
     this.bindEvents();
-    setTimeout(() => this.startGame(), 2000);
+    setTimeout(() => this.startGame(), 2000); // 2 second delay before game starts
   }
 
   drawInitialGameState() {
@@ -64,28 +66,47 @@ class Game {
 
   startGame() {
     cancelAnimationFrame(this.requestId);
+    this.lastUpdateTime = null;
     this.gameLoop();
   }
 
   gameLoop() {
-    this.requestId = requestAnimationFrame(() => this.update());
+    this.requestId = requestAnimationFrame(this.update.bind(this));
   }
 
-  update() {
+  updatePacmanPosition(x, y) {
+    this.pacmanPosition = { x, y };
+  }
+
+  getPacmanPosition() {
+    return this.pacmanPosition;
+  }
+
+  update(timestamp) {
+    if (this.lastUpdateTime === null) {
+      this.lastUpdateTime = timestamp;
+    }
+
+    const deltaTime = timestamp - this.lastUpdateTime;
+    this.lastUpdateTime = timestamp;
+
     this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     this.pelletManager.draw();
     this.pacman.update();
-    this.ghostManager.update();
+    this.updatePacmanPosition(this.pacman.position.x, this.pacman.position.y);
+    this.ghostManager.update(this.pacmanPosition, deltaTime);
     this.checkCollisionWithGhosts();
 
     if (this.gameOver) {
+      cancelAnimationFrame(this.requestId);
       this.displayGameOver();
     } else {
-      this.requestId = requestAnimationFrame(() => this.update());
+      this.requestId = requestAnimationFrame(this.update.bind(this));
     }
   }
 
   restartGame() {
+    cancelAnimationFrame(this.requestId);
     this.gameCanvas.removeEventListener("click", this.clickListener);
     this.gameCanvas.removeEventListener("mousemove", this.mouseMoveListener);
     this.gameCanvas.style.cursor = "default";
@@ -205,14 +226,16 @@ class Game {
   }
 
   handleCollisionWithGhost(ghost) {
-    if (ghost.mode === "random") {
-      this.gameStateDisplay.decrementLives();
-      this.pacman.reset();
-      this.ghosts.forEach((ghost) => ghost.reset());
-    } else {
-      // ghost.mode === "frighten"
-      // Handle frightened ghost collision logic
-      ghost.reset();
+    switch (ghost.mode) {
+      case "random":
+      case "chase":
+        this.gameStateDisplay.decrementLives();
+        this.pacman.reset();
+        this.ghosts.forEach((ghost) => ghost.reset());
+        break;
+      case "frighten":
+        ghost.reset();
+        break;
     }
   }
 

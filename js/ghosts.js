@@ -1,3 +1,5 @@
+import { Pacman } from "./pacman.js";
+
 class Ghost {
   /**
    * Constructs a new instance of the Ghost class.
@@ -17,7 +19,6 @@ class Ghost {
     cellSize,
     images,
     { position },
-    mode = "random",
     velocity = 2.0
   ) {
     this.name = name;
@@ -33,7 +34,7 @@ class Ghost {
     }; // Convert grid coordinates to pixel coordinates
     this.position = { ...this.initialPosition };
 
-    this.mode = mode;
+    this.mode = "random";
     this.velocity = velocity;
     this.directions = [
       { dx: -1 * this.velocity, dy: 0 }, // Left
@@ -48,8 +49,14 @@ class Ghost {
     this.frightenedDuration = 10000; // 10 seconds
     this.blinkDuration = 2000; //  2 seconds
     this.blinkInterval = 300; // Blink every 300 ms
+
+    this.setupPathfindingGrid();
   }
 
+  /**
+   * Activates the frighten mode, changing the ghost's appearance and behavior.
+   * Starts a timer that will initiate blinking near the end of the frighten duration.
+   */
   frighten() {
     this.mode = "frighten";
     this.currentImage = this.images[1];
@@ -63,6 +70,10 @@ class Ghost {
     }, this.frightenedDuration - this.blinkDuration);
   }
 
+  /**
+   * Starts the blinking effect during frighten mode by toggling between two images.
+   * Sets a timer to end frighten mode after the specified blink duration.
+   */
   startBlinking() {
     if (this.blinkTimer) {
       clearInterval(this.blinkTimer);
@@ -78,12 +89,19 @@ class Ghost {
     }, this.blinkDuration);
   }
 
+  /**
+   * Ends the frighten mode by stopping the blinking effect and resetting the ghost's mode to random.
+   * Resets the ghost's image to the default state and clears any related timers.
+   */
   endFrighten() {
     clearInterval(this.blinkTimer);
     this.blinkTimer = null;
     this.mode = "random";
     this.currentImage = this.images[0];
     this.frightenedTimer = null;
+    this.lastDirection = { dx: 0, dy: 0 };
+
+    this.setupPathfindingGrid();
   }
 
   /**
@@ -148,14 +166,14 @@ class Ghost {
    * Updates the ghost's position based on its mode.
    * In 'random' mode, the ghost chooses a new direction randomly from the available valid moves.
    */
-  move() {
+  move(pacmanPosition) {
     switch (this.mode) {
       case "random":
+      case "frighten":
         this.chooseRandomDirection();
         break;
-      case "frighten":
-        console.log("fright");
-        this.chooseRandomDirection();
+      case "chase":
+        this.chooseDirectionUsingAStar(pacmanPosition.x, pacmanPosition.y);
         break;
       default:
         break;
@@ -194,6 +212,106 @@ class Ghost {
       this.lastDirection = { dx: move.dx, dy: move.dy };
     }
   }
+
+  /**
+   * Sets up the pathfinding grid based on the current maze configuration.
+   * Converts the maze structure into a grid for the A* pathfinding algorithm.
+   */
+  setupPathfindingGrid() {
+    this.grid = new window.PF.Grid(
+      this.mazeManager
+        .getMaze()
+        .map((row) => row.map((cell) => (cell === 1 ? 1 : 0)))
+    );
+    this.finder = new window.PF.AStarFinder();
+  }
+
+  /**
+   * Converts the ghost's continuous position to a grid index, adjusting based on the direction of movement.
+   * @param {number} pos - The position to be converted.
+   * @param {number} cellSize - The size of each cell in the grid.
+   * @param {Object} direction - The current direction of movement.
+   * @returns {number} The converted grid position.
+   */
+  toGridPosition(pos, cellSize, direction) {
+    if (
+      (direction.dx === 1 * this.velocity && direction.dy === 0) ||
+      (direction.dx === 0 && direction.dy === 1 * this.velocity)
+    ) {
+      return Math.floor(pos / cellSize);
+    } else {
+      return Math.ceil(pos / cellSize);
+    }
+  }
+
+  /**
+   * Determines the direction to move using the A* pathfinding algorithm based on the target position.
+   * @param {number} targetX - The x-coordinate of the target.
+   * @param {number} targetY - The y-coordinate of the target.
+   */
+  chooseDirectionUsingAStar(targetX, targetY) {
+    const directionX =
+      targetX > this.position.x
+        ? { dx: 1 * this.velocity, dy: 0 }
+        : { dx: -1 * this.velocity, dy: 0 };
+    const directionY =
+      targetY > this.position.y
+        ? { dx: 0, dy: 1 * this.velocity }
+        : { dx: 0, dy: -1 * this.velocity };
+
+    const startCol = this.toGridPosition(
+      this.position.x,
+      this.cellSize,
+      directionX
+    );
+    const startRow = this.toGridPosition(
+      this.position.y,
+      this.cellSize,
+      directionY
+    );
+    const endCol = this.toGridPosition(targetX, this.cellSize, directionX);
+    const endRow = this.toGridPosition(targetY, this.cellSize, directionY);
+
+    const gridClone = this.grid.clone();
+    const path = this.finder.findPath(
+      startCol,
+      startRow,
+      endCol,
+      endRow,
+      gridClone
+    );
+
+    if (path.length > 1) {
+      const nextStep = path[1];
+      this.updatePositionBasedOnPath(nextStep);
+    }
+  }
+
+  /**
+   * Updates the ghost's position based on the next step in the calculated path.
+   * Adjusts the position smoothly and updates the direction of movement.
+   * @param {Array} nextStep - The next step coordinates from the pathfinding result.
+   */
+  updatePositionBasedOnPath(nextStep) {
+    let newX = nextStep[0] * this.cellSize;
+    let newY = nextStep[1] * this.cellSize;
+
+    if (newX < this.position.x) {
+      this.position.x = Math.max(this.position.x - this.velocity, newX);
+      this.lastDirection.dx = -1 * this.velocity;
+    } else if (newX > this.position.x) {
+      this.position.x = Math.min(this.position.x + this.velocity, newX);
+      this.lastDirection.dx = 1 * this.velocity;
+    }
+
+    if (newY < this.position.y) {
+      this.position.y = Math.max(this.position.y - this.velocity, newY);
+      this.lastDirection.dy = -1 * this.velocity;
+    } else if (newY > this.position.y) {
+      this.position.y = Math.min(this.position.y + this.velocity, newY);
+      this.lastDirection.dy = 1 * this.velocity;
+    }
+  }
 }
 
 class GhostManager {
@@ -203,14 +321,40 @@ class GhostManager {
    */
   constructor(ghosts) {
     this.ghosts = ghosts;
+    this.mode = "random";
+    this.modeDuration = 0;
+    this.chaseDuration = 3000; // 3 seconds
+    this.randomDuration = 7000; // 7 seconds
   }
 
   /**
    * Calls the move and draw methods on each ghost in the list.
+   * @param {Object} pacmanPosition - The current position of Pac-Man.
+   * @param {number} deltaTime - Time elapsed since the last update call.
    */
-  update() {
-    this.ghosts.forEach((ghost) => ghost.move());
-    this.ghosts.forEach((ghost) => ghost.draw());
+  update(pacmanPosition, deltaTime) {
+    const anyFrightened = this.ghosts.some(
+      (ghost) => ghost.mode === "frighten"
+    );
+
+    this.modeDuration += deltaTime;
+    if (!anyFrightened) {
+      if (this.mode === "chase" && this.modeDuration >= this.chaseDuration) {
+        this.setMode("random");
+        this.modeDuration = 0;
+      } else if (
+        this.mode === "random" &&
+        this.modeDuration >= this.randomDuration
+      ) {
+        this.setMode("chase");
+        this.modeDuration = 0;
+      }
+    }
+
+    this.ghosts.forEach((ghost) => {
+      ghost.move(pacmanPosition);
+      ghost.draw();
+    });
   }
 
   /**
@@ -221,10 +365,18 @@ class GhostManager {
     this.ghosts.forEach((ghost) => ghost.draw());
   }
 
-  setMode() {
-    this.ghosts.forEach((ghost) => (ghost.mode = "frighten"));
+  /**
+   * Sets the mode for all ghosts.
+   * @param {string} mode - New mode for all ghosts.
+   */
+  setMode(mode) {
+    this.mode = mode;
+    this.ghosts.forEach((ghost) => (ghost.mode = mode));
   }
 
+  /**
+   * Activates frighten mode for all ghosts.
+   */
   frighten() {
     this.ghosts.forEach((ghost) => ghost.frighten());
   }
