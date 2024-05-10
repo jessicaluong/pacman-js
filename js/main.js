@@ -3,6 +3,10 @@ import { Pacman } from "./pacman.js";
 import { Ghost, GhostManager } from "./ghosts.js";
 
 class Game {
+  /**
+   * Constructs the Game class instance, initializes the game environment, and loads necessary images.
+   * Sets up the game context, canvas, and game managers for pellets, mazes, and game state.
+   */
   constructor() {
     const {
       mazeManager,
@@ -36,6 +40,10 @@ class Game {
       });
   }
 
+  /**
+   * Initializes the game components including Pacman, ghosts, and managers for ghosts and pellets.
+   * Resets all game state managers and draws the initial game state, then sets a delay before starting the game.
+   */
   initializeGame() {
     this.pacman = new Pacman(
       this.gameCtx,
@@ -56,6 +64,10 @@ class Game {
     setTimeout(() => this.startGame(), 2000); // 2 second delay before game starts
   }
 
+  /**
+   * Clears the game canvas and redraws the initial state of the game, including pellets, Pacman, and ghosts.
+   * This method is typically called at the beginning of the game or after a game reset.
+   */
   drawInitialGameState() {
     this.gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
     this.pelletManager.draw();
@@ -63,24 +75,48 @@ class Game {
     this.ghostManager.draw();
   }
 
+  /**
+   * Starts the game loop by cancelling any previous animation frames and resetting the last update time.
+   * This prepares the game for running by initiating the animation cycle.
+   */
   startGame() {
     cancelAnimationFrame(this.requestId);
     this.lastUpdateTime = null;
     this.gameLoop();
   }
 
+  /**
+   * Continuously updates the game state by calling the update method at the refresh rate of the browser.
+   * This is the core game loop that drives updates to the game logic and rendering.
+   */
   gameLoop() {
     this.requestId = requestAnimationFrame(this.update.bind(this));
   }
 
+  /**
+   * Updates the stored position of Pacman within the game.
+   * This method helps in tracking and providing a centralized point of reference for Pacman's position.
+   * @param {number} x - The x-coordinate of Pacman's position.
+   * @param {number} y - The y-coordinate of Pacman's position.
+   */
   updatePacmanPosition(x, y) {
     this.pacmanPosition = { x, y };
   }
 
+  /**
+   * Retrieves the current position of Pacman.
+   * @returns {Object} An object containing x and y coordinates of Pacman's position.
+   */
   getPacmanPosition() {
     return this.pacmanPosition;
   }
 
+  /**
+   * The primary update loop for the game, called by requestAnimationFrame.
+   * Handles all dynamic game elements, including drawing the game state, updating game components,
+   * checking collisions, and transitioning to the game over state if necessary.
+   * @param {number} timestamp - The timestamp of the current frame provided by requestAnimationFrame.
+   */
   update(timestamp) {
     if (this.lastUpdateTime === null) {
       this.lastUpdateTime = timestamp;
@@ -100,7 +136,6 @@ class Game {
       this.pelletManager.pelletCount === 0 ||
       this.gameStateDisplay.lives < 0
     ) {
-      console.log(this.pelletManager.pelletCount);
       cancelAnimationFrame(this.requestId);
       this.displayGameOver();
     } else {
@@ -108,6 +143,11 @@ class Game {
     }
   }
 
+  /**
+   * Resets the game state to its initial configuration, including all game entities and settings,
+   * and prepares the game for a fresh start.
+   * This method is typically called after a game over.
+   */
   restartGame() {
     cancelAnimationFrame(this.requestId);
     this.gameCanvas.removeEventListener("click", this.clickListener);
@@ -126,6 +166,11 @@ class Game {
     setTimeout(() => this.startGame(), 2000);
   }
 
+  /**
+   * Handles the logic for when Pacman eats a pellet or power pellet, updating the score,
+   * decreasing the pellet count, and potentially triggering frighten mode for the ghosts.
+   * @param {Object} position - The grid position where Pacman eats a pellet, containing x and y coordinates.
+   */
   handleEatPellet(position) {
     let scoreValue = 0;
     if (this.mazeManager.hasPellet(position.x, position.y)) {
@@ -142,6 +187,11 @@ class Game {
     }
   }
 
+  /**
+   * Creates and returns an array of Ghost instances for the game.
+   * Each ghost is initialized with its unique characteristics and images for different modes.
+   * @returns {Ghost[]} Array of initialized Ghost objects.
+   */
   createGhosts() {
     return [
       new Ghost(
@@ -203,6 +253,10 @@ class Game {
     ];
   }
 
+  /**
+   * Checks for collisions between Pacman and any ghost.
+   * If a collision is detected and not in cooldown, handles the collision based on the ghost's current mode.
+   */
   checkCollisionWithGhosts() {
     if (this.collisionCooldown > 0) {
       this.collisionCooldown--;
@@ -220,6 +274,11 @@ class Game {
     });
   }
 
+  /**
+   * Handles the collision between Pacman and a ghost based on the ghost's mode.
+   * If the ghost is in frighten mode, it resets; otherwise, it decrements Pacman's lives.
+   * @param {Ghost} ghost - The ghost with which Pacman has collided.
+   */
   handleCollisionWithGhost(ghost) {
     switch (ghost.mode) {
       case "random":
@@ -234,23 +293,35 @@ class Game {
     }
   }
 
+  /**
+   * Displays the game over screen, with a button to restart the game.
+   * Sets up event listeners to handle clicks for restarting the game.
+   */
   displayGameOver() {
     this.gameCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
     this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-
     const xPos = this.gameCanvas.width / 2;
     const yPos = this.gameCanvas.width / 2;
-
     this.gameCtx.fillStyle = "white";
     this.gameCtx.textAlign = "center";
     this.gameCtx.font = "24px 'Roboto Mono', monospace";
     this.gameCtx.fillText("Game Over", xPos, yPos);
-
     const buttonText = "Click to restart";
     this.gameCtx.font = "18px 'Roboto Mono', monospace";
     this.gameCtx.fillText(buttonText, xPos, yPos + 50);
+    this.setupRestartButton(xPos, yPos, buttonText);
+  }
+
+  /**
+   * Sets up the interactive button on the game over screen.
+   * Adds mouse event listeners for click and mouse movement to interact with the button.
+   * @param {number} xPos - Horizontal center of the canvas.
+   * @param {number} yPos - Vertical center where the game over text is displayed.
+   * @param {string} buttonText - The text displayed on the restart button.
+   */
+  setupRestartButton(xPos, yPos, buttonText) {
     const buttonX = xPos - this.gameCtx.measureText(buttonText).width / 2;
-    const buttonY = yPos + 50 - 18;
+    const buttonY = yPos + 50 - 18; // Position based on text size
     const buttonWidth = this.gameCtx.measureText(buttonText).width;
     const buttonHeight = 24;
 
@@ -258,13 +329,12 @@ class Game {
       const rect = this.gameCanvas.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
       const clickY = event.clientY - rect.top;
-      const isInsideButton =
+      if (
         clickX >= buttonX &&
         clickX <= buttonX + buttonWidth &&
         clickY >= buttonY &&
-        clickY <= buttonY + buttonHeight;
-
-      if (isInsideButton) {
+        clickY <= buttonY + buttonHeight
+      ) {
         this.restartGame();
       }
     };
@@ -273,23 +343,31 @@ class Game {
       const rect = this.gameCanvas.getBoundingClientRect();
       const mouseX = event.clientX - rect.left;
       const mouseY = event.clientY - rect.top;
-      const isInsideButton =
+      this.gameCanvas.style.cursor =
         mouseX >= buttonX &&
         mouseX <= buttonX + buttonWidth &&
         mouseY >= buttonY &&
-        mouseY <= buttonY + buttonHeight;
-
-      this.gameCanvas.style.cursor = isInsideButton ? "pointer" : "default";
+        mouseY <= buttonY + buttonHeight
+          ? "pointer"
+          : "default";
     };
 
     this.gameCanvas.addEventListener("click", this.clickListener);
     this.gameCanvas.addEventListener("mousemove", this.mouseMoveListener);
   }
 
+  /**
+   * Sets up key bindings for controlling the game, such as moving Pacman and restarting the game.
+   */
   bindEvents() {
     window.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
+  /**
+   * Handles key down events to control Pacman's movement and to trigger a game restart.
+   * Prevents default behavior for arrow keys to avoid scrolling the page.
+   * @param {KeyboardEvent} event - The keydown event object.
+   */
   handleKeyDown(event) {
     switch (event.key) {
       case "ArrowLeft":
