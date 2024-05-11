@@ -46,7 +46,7 @@ const maze = [
  * @returns {{bgCtx: CanvasRenderingContext2D, gameCtx: CanvasRenderingContext2D, gameCanvas: HTMLCanvasElement}}
  *          Contexts and canvas for background and game layers.
  */
-function initializeCanvas() {
+export function initializeCanvas() {
   const backgroundCanvas = document.getElementById("backgroundCanvas");
   const gameCanvas = document.getElementById("gameCanvas");
   const bgCtx = backgroundCanvas.getContext("2d");
