@@ -104,14 +104,6 @@ export class Game {
   }
 
   /**
-   * Retrieves the current position of Pacman.
-   * @returns {Object} An object containing x and y coordinates of Pacman's position.
-   */
-  getPacmanPosition() {
-    return this.pacmanPosition;
-  }
-
-  /**
    * The primary update loop for the game, called by requestAnimationFrame.
    * Handles all dynamic game elements, including drawing the game state, updating game components,
    * checking collisions, and transitioning to the game over state if necessary.
