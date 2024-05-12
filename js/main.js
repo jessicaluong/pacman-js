@@ -94,16 +94,6 @@ export class Game {
   }
 
   /**
-   * Updates the stored position of Pacman within the game.
-   * This method helps in tracking and providing a centralized point of reference for Pacman's position.
-   * @param {number} x - The x-coordinate of Pacman's position.
-   * @param {number} y - The y-coordinate of Pacman's position.
-   */
-  updatePacmanPosition(x, y) {
-    this.pacmanPosition = { x, y };
-  }
-
-  /**
    * The primary update loop for the game, called by requestAnimationFrame.
    * Handles all dynamic game elements, including drawing the game state, updating game components,
    * checking collisions, and transitioning to the game over state if necessary.
@@ -156,6 +146,17 @@ export class Game {
     this.drawInitialGameState();
 
     setTimeout(() => this.startGame(), 2000);
+  }
+
+  /**
+   * Updates the stored position of Pacman within the game.
+   * This method helps in tracking and providing a centralized point of reference for Pacman's position,
+   * and is used by ghosts to determine path to Pacman.
+   * @param {number} x - The x-coordinate of Pacman's position.
+   * @param {number} y - The y-coordinate of Pacman's position.
+   */
+  updatePacmanPosition(x, y) {
+    this.pacmanPosition = { x, y };
   }
 
   /**
