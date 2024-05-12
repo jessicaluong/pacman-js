@@ -2,7 +2,7 @@ import { cellSize, loadImages, setupGameEnvironment } from "./setup.js";
 import { Pacman } from "./pacman.js";
 import { Ghost, GhostManager } from "./ghosts.js";
 
-class Game {
+export class Game {
   /**
    * Constructs the Game class instance, initializes the game environment, and loads necessary images.
    * Sets up the game context, canvas, and game managers for pellets, mazes, and game state.
@@ -69,7 +69,7 @@ class Game {
    * This method is typically called at the beginning of the game or after a game reset.
    */
   drawInitialGameState() {
-    this.gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+    this.gameCtx.clearRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
     this.pelletManager.draw();
     this.pacman.draw();
     this.ghostManager.draw();
