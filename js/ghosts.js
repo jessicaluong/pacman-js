@@ -40,7 +40,7 @@ class Ghost {
       { dx: 0, dy: -1 * this.velocity }, // Up
       { dx: 0, dy: 1 * this.velocity }, // Down
     ];
-    this.lastDirection = {};
+    this.lastDirection = { dx: 0, dy: 0 };
 
     this.frightenedTimer = null;
     this.blinkTimer = null;
