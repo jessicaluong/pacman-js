@@ -305,3 +305,62 @@ describe("Ghost", () => {
     });
   });
 });
+
+class MockGhost {
+  constructor() {
+    this.mode = "random";
+    this.move = jest.fn();
+    this.draw = jest.fn();
+    this.frighten = jest.fn();
+  }
+}
+
+describe("GhostManager", () => {
+  let ghosts, manager;
+
+  beforeEach(() => {
+    ghosts = [new MockGhost(), new MockGhost(), new MockGhost()];
+    manager = new GhostManager(ghosts);
+  });
+
+  test("update should call move and draw on each ghost", () => {
+    manager.update({ x: 50, y: 50 }, 100);
+    ghosts.forEach((ghost) => {
+      expect(ghost.move).toHaveBeenCalledWith({ x: 50, y: 50 });
+      expect(ghost.draw).toHaveBeenCalled();
+    });
+  });
+
+  test("update should handle mode transitions correctly", () => {
+    manager.mode = "chase";
+    manager.update({}, 3001); // deltaTime to exceed chaseDuration
+    expect(manager.mode).toBe("random");
+    expect(manager.modeDuration).toBe(0);
+
+    manager.update({}, 7001); // deltaTime to exceed randomDuration
+    expect(manager.mode).toBe("chase");
+    expect(manager.modeDuration).toBe(0);
+  });
+
+  test("draw should call draw on each ghost", () => {
+    manager.draw();
+    ghosts.forEach((ghost) => {
+      expect(ghost.draw).toHaveBeenCalled();
+    });
+  });
+
+  test("setMode should update mode for all ghosts", () => {
+    manager.setMode("chase");
+    expect(manager.mode).toBe("chase");
+    ghosts.forEach((ghost) => {
+      expect(ghost.mode).toBe("chase");
+    });
+  });
+
+  test("frighten should activate frighten mode for all ghosts", () => {
+    manager.frighten();
+    ghosts.forEach((ghost) => {
+      expect(ghost.frighten).toHaveBeenCalled();
+    });
+  });
+});
