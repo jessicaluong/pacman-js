@@ -16,25 +16,26 @@ The ghosts switch between three behavioral modes: chase, random, and frighten. T
 
 During random mode, ghosts move unpredictably around the maze.
 
-![random](https://github.com/jessicaluong/pacman-js/assets/96930184/47596b79-473e-4fe6-9747-f0357b0449fc)
+<img alt="random_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/47596b79-473e-4fe6-9747-f0357b0449fc" width="696">
 
 ### Chase
 
 In chase mode, the ghosts use the A\* search algorithm to find the shortest path to Pac-Man.
 
-![chase](https://github.com/jessicaluong/pacman-js/assets/96930184/f6f1fdc1-ee72-48b7-8d96-d11ef853e91e)
+<img alt="chase_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/f6f1fdc1-ee72-48b7-8d96-d11ef853e91e" width="696">
+
 
 ### Frighten
 
 After Pac-Man consumes a power pellet, ghosts enter frighten mode. In this mode, Pac-Man can eat the ghosts without losing a life.
 
-![frighten](https://github.com/jessicaluong/pacman-js/assets/96930184/4f2966d6-3fd0-44be-aa1e-b95b9ce85efe)
+<img alt="frighten_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/4f2966d6-3fd0-44be-aa1e-b95b9ce85efe" width="696">
 
 ## Game Over
 
 The game ends either when Pac-Man collects all pellets or loses all lives. A game over screen appears with an option to restart the game.
 
-<img width="443" alt="gameover" src="https://github.com/jessicaluong/pacman-js/assets/96930184/26abbea4-d88e-456e-bec5-436707e8ed45">
+<img width="696" alt="gameover3" src="https://github.com/jessicaluong/pacman-js/assets/96930184/0e0ba8e2-7ddf-454c-931f-83b5e50147ba">
 
 ## Optimizations
 
