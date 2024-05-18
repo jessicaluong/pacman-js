@@ -350,14 +350,14 @@ export class Game {
   }
 
   /**
-   * Sets up key bindings for controlling the game, such as moving Pacman and restarting the game.
+   * Sets up key bindings for moving Pacman.
    */
   bindEvents() {
     window.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
   /**
-   * Handles key down events to control Pacman's movement and to trigger a game restart.
+   * Handles key down events to control Pacman's movement.
    * Prevents default behavior for arrow keys to avoid scrolling the page.
    * @param {KeyboardEvent} event - The keydown event object.
    */
@@ -378,10 +378,6 @@ export class Game {
       case "ArrowDown":
         this.pacman.nextDirection = "DOWN";
         event.preventDefault();
-        break;
-      case "r":
-      case "R":
-        this.restartGame();
         break;
       default:
         break;
