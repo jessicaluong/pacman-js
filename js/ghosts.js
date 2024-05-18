@@ -192,8 +192,6 @@ class Ghost {
       case "chase":
         this.chooseDirectionUsingAStar(pacmanPosition.x, pacmanPosition.y);
         break;
-      default:
-        break;
     }
   }
 
