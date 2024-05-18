@@ -43,16 +43,57 @@ describe("Pacman", () => {
     expect(pacman.currentImage).toBe(pacman.images[0]);
   });
 
-  test("draw should save context, perform transformations, and draw image", () => {
-    pacman.draw();
-    expect(mockCtx.save).toHaveBeenCalled();
-    expect(mockCtx.translate).toHaveBeenCalledWith(
-      pacman.position.x + pacman.radius,
-      pacman.position.y + pacman.radius
-    );
-    expect(mockCtx.rotate).not.toHaveBeenCalled(); // Should not rotate as default direction is RIGHT
-    expect(mockCtx.drawImage).toHaveBeenCalled();
-    expect(mockCtx.restore).toHaveBeenCalled();
+  describe("draw", () => {
+    test("should save context, perform transformations, and draw image", () => {
+      pacman.draw();
+      expect(mockCtx.save).toHaveBeenCalled();
+      expect(mockCtx.translate).toHaveBeenCalledWith(
+        pacman.position.x + pacman.radius,
+        pacman.position.y + pacman.radius
+      );
+      expect(mockCtx.rotate).not.toHaveBeenCalled(); // Should not rotate as default direction is RIGHT
+      expect(mockCtx.drawImage).toHaveBeenCalled();
+      expect(mockCtx.restore).toHaveBeenCalled();
+    });
+
+    test("should rotate image when Pac-Man moves left", () => {
+      pacman.direction = "LEFT";
+      pacman.draw();
+      expect(mockCtx.save).toHaveBeenCalled();
+      expect(mockCtx.translate).toHaveBeenCalledWith(
+        pacman.position.x + pacman.radius,
+        pacman.position.y + pacman.radius
+      );
+      expect(mockCtx.rotate).toHaveBeenCalledWith(Math.PI);
+      expect(mockCtx.drawImage).toHaveBeenCalled();
+      expect(mockCtx.restore).toHaveBeenCalled();
+    });
+
+    test("should rotate image when Pac-Man moves up", () => {
+      pacman.direction = "UP";
+      pacman.draw();
+      expect(mockCtx.save).toHaveBeenCalled();
+      expect(mockCtx.translate).toHaveBeenCalledWith(
+        pacman.position.x + pacman.radius,
+        pacman.position.y + pacman.radius
+      );
+      expect(mockCtx.rotate).toHaveBeenCalledWith(-Math.PI / 2);
+      expect(mockCtx.drawImage).toHaveBeenCalled();
+      expect(mockCtx.restore).toHaveBeenCalled();
+    });
+
+    test("should rotate image when Pac-Man moves down", () => {
+      pacman.direction = "DOWN";
+      pacman.draw();
+      expect(mockCtx.save).toHaveBeenCalled();
+      expect(mockCtx.translate).toHaveBeenCalledWith(
+        pacman.position.x + pacman.radius,
+        pacman.position.y + pacman.radius
+      );
+      expect(mockCtx.rotate).toHaveBeenCalledWith(Math.PI / 2);
+      expect(mockCtx.drawImage).toHaveBeenCalled();
+      expect(mockCtx.restore).toHaveBeenCalled();
+    });
   });
 
   test("animateMouth should cycle through images every 8 frames", () => {
@@ -62,20 +103,41 @@ describe("Pacman", () => {
     expect(pacman.currentImage).toBe(pacman.images[1]);
   });
 
-  test("update should handle game logic for moving and drawing Pac-Man", () => {
-    jest.spyOn(pacman, "moveForwards");
-    jest.spyOn(pacman, "isCollideWithWall").mockReturnValue(false);
-    jest.spyOn(pacman, "checkEatPellet");
-    jest.spyOn(pacman, "animateMouth");
-    jest.spyOn(pacman, "draw");
+  describe("update", () => {
+    beforeEach(() => {
+      jest.spyOn(pacman, "moveForwards");
+      const spyCollideWall = jest
+        .spyOn(pacman, "isCollideWithWall")
+        .mockReturnValue(true);
+      jest.spyOn(pacman, "moveBackwards");
+      jest.spyOn(pacman, "checkEatPellet");
+      jest.spyOn(pacman, "animateMouth");
+      jest.spyOn(pacman, "draw");
+    });
 
-    pacman.update();
+    test("should handle game logic for moving and drawing Pac-Man", () => {
+      jest.spyOn(pacman, "isCollideWithWall").mockReturnValue(false);
+      pacman.update();
 
-    expect(pacman.moveForwards).toHaveBeenCalled();
-    expect(pacman.isCollideWithWall).toHaveBeenCalled();
-    expect(pacman.checkEatPellet).toHaveBeenCalled();
-    expect(pacman.animateMouth).toHaveBeenCalled();
-    expect(pacman.draw).toHaveBeenCalled();
+      expect(pacman.moveForwards).toHaveBeenCalled();
+      expect(pacman.isCollideWithWall).toHaveBeenCalled();
+      expect(pacman.moveBackwards).not.toHaveBeenCalled();
+      expect(pacman.checkEatPellet).toHaveBeenCalled();
+      expect(pacman.animateMouth).toHaveBeenCalled();
+      expect(pacman.draw).toHaveBeenCalled();
+    });
+
+    test("should move Pac-Man backwards upon wall collision", () => {
+      jest.spyOn(pacman, "isCollideWithWall").mockReturnValue(true);
+      pacman.update();
+
+      expect(pacman.moveForwards).toHaveBeenCalled();
+      expect(pacman.isCollideWithWall).toHaveBeenCalled();
+      expect(pacman.moveBackwards).toHaveBeenCalled();
+      expect(pacman.checkEatPellet).toHaveBeenCalled();
+      expect(pacman.animateMouth).toHaveBeenCalled();
+      expect(pacman.draw).toHaveBeenCalled();
+    });
   });
 
   describe("changeDirectionIfPossible", () => {
