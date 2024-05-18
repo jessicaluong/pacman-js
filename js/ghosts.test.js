@@ -292,16 +292,28 @@ describe("Ghost", () => {
       expect(ghost.updatePositionBasedOnPath).toHaveBeenCalledWith([1, 2]);
     });
 
-    test("updatePositionBasedOnPath moves ghost to the next step correctly (down)", () => {
+    test("updatePositionBasedOnPath moves ghost left correctly", () => {
+      ghost.updatePositionBasedOnPath([0, 1]);
+      expect(ghost.lastDirection.dx).toBe(-1 * ghost.velocity);
+      expect(ghost.lastDirection.dy).toBe(0);
+    });
+
+    test("updatePositionBasedOnPath moves ghost right correctly", () => {
+      ghost.updatePositionBasedOnPath([2, 1]);
+      expect(ghost.lastDirection.dx).toBe(1 * ghost.velocity);
+      expect(ghost.lastDirection.dy).toBe(0);
+    });
+
+    test("updatePositionBasedOnPath moves ghost down correctly", () => {
       ghost.updatePositionBasedOnPath([1, 5]);
       expect(ghost.lastDirection.dx).toBe(0);
       expect(ghost.lastDirection.dy).toBe(1 * ghost.velocity);
     });
 
-    test("updatePositionBasedOnPath moves ghost to the next step correctly (left)", () => {
-      ghost.updatePositionBasedOnPath([0, 1]);
-      expect(ghost.lastDirection.dx).toBe(-1 * ghost.velocity);
-      expect(ghost.lastDirection.dy).toBe(0);
+    test("updatePositionBasedOnPath moves ghost up correctly", () => {
+      ghost.updatePositionBasedOnPath([1, 0]);
+      expect(ghost.lastDirection.dx).toBe(0);
+      expect(ghost.lastDirection.dy).toBe(-1 * ghost.velocity);
     });
   });
 });
