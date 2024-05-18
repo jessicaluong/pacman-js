@@ -10,10 +10,7 @@ window.PF = {
     clone: jest.fn().mockReturnThis(),
   })),
   AStarFinder: jest.fn().mockImplementation(() => ({
-    findPath: jest.fn().mockReturnValue([
-      [1, 1],
-      [1, 2],
-    ]),
+    findPath: jest.fn(),
   })),
 };
 
@@ -57,81 +54,129 @@ describe("Ghost", () => {
 
   describe("frighten mode", () => {
     beforeEach(() => {
-      originalSetTimeout = global.setTimeout;
-      originalClearTimeout = global.clearTimeout;
-      originalSetInterval = global.setInterval;
-      originalClearInterval = global.clearInterval;
-
-      global.setTimeout = jest
-        .fn()
-        .mockImplementation((fn, delay) => "timeoutId");
-      global.clearTimeout = jest.fn();
-      global.setInterval = jest
-        .fn()
-        .mockImplementation((fn, interval) => "intervalId");
-      global.clearInterval = jest.fn();
+      jest.useFakeTimers();
+      jest.spyOn(global, "setTimeout");
+      jest.spyOn(global, "clearTimeout");
+      jest.spyOn(global, "setInterval");
+      jest.spyOn(global, "clearInterval");
     });
 
     afterEach(() => {
-      global.setTimeout = originalSetTimeout;
-      global.clearTimeout = originalClearTimeout;
-      global.setInterval = originalSetInterval;
-      global.clearInterval = originalClearInterval;
+      jest.useRealTimers();
     });
 
-    test("frighten should set mode to frighten and handle timers correctly", () => {
-      ghost.frightenedTimer = global.setTimeout(() => {}, 1000);
+    describe("frighten", () => {
+      test("should set mode to frighten and ghost's appearance to frightened image", () => {
+        ghost.frighten();
+        expect(ghost.mode).toBe("frighten");
+        expect(ghost.currentImage).toBe(ghost.images[1]);
+      });
 
-      ghost.frighten();
-      expect(ghost.mode).toBe("frighten");
-      expect(ghost.currentImage).toBe(ghost.images[1]);
-      expect(global.clearTimeout).toHaveBeenCalled();
-      expect(global.setTimeout).toHaveBeenCalledWith(
-        expect.any(Function),
-        ghost.frightenedDuration - ghost.blinkDuration
-      );
-      expect(ghost.frightenedTimer).toBe("timeoutId");
+      test("should clear existing frightenedTimer correctly", () => {
+        ghost.frightenedTimer = "timeoutId";
+
+        ghost.frighten();
+        expect(global.clearTimeout).toHaveBeenCalledWith("timeoutId");
+      });
+
+      test("should clear existing blinkTimer correctly", () => {
+        ghost.blinkTimer = "intervalId";
+
+        ghost.frighten();
+        expect(global.clearInterval).toHaveBeenCalledWith("intervalId");
+        expect(ghost.blinkTimer).toBe(null);
+      });
+
+      test("should setup frightenedTimer correctly", () => {
+        jest.spyOn(ghost, "startBlinking").mockImplementation();
+
+        ghost.frighten();
+        expect(global.setTimeout).toHaveBeenCalledWith(
+          expect.any(Function),
+          ghost.frightenedDuration - ghost.blinkDuration
+        );
+        expect(ghost.frightenedTimer).toBeDefined();
+        jest.advanceTimersByTime(
+          ghost.frightenedDuration - ghost.blinkDuration
+        );
+        expect(ghost.frightenedTimer).toBeDefined();
+        expect(ghost.startBlinking).toHaveBeenCalled();
+      });
     });
 
-    test("startBlinking should toggle images and set correct timers", () => {
-      ghost.startBlinking();
-      expect(global.setInterval).toHaveBeenCalledWith(
-        expect.any(Function),
-        ghost.blinkInterval
-      );
-      expect(ghost.blinkTimer).toBe("intervalId");
-      expect(global.setTimeout).toHaveBeenCalledWith(
-        expect.any(Function),
-        ghost.blinkDuration
-      );
+    describe("startBlinking", () => {
+      test("should clear existing blinkTimer correctly", () => {
+        ghost.blinkTimer = "intervalId";
+        ghost.startBlinking();
+        expect(global.clearInterval).toHaveBeenCalledWith("intervalId");
+      });
+
+      test("should toggle images and setup blinkTimer correctly", () => {
+        ghost.startBlinking();
+        expect(setInterval).toHaveBeenCalledWith(
+          expect.any(Function),
+          ghost.blinkInterval
+        );
+        expect(ghost.blinkTimer).toBeDefined();
+      });
+
+      test("should set timeout correctly", () => {
+        jest.spyOn(ghost, "endFrighten").mockImplementation();
+
+        ghost.startBlinking();
+        expect(setTimeout).toHaveBeenCalledWith(
+          expect.any(Function),
+          ghost.blinkDuration
+        );
+        jest.advanceTimersByTime(ghost.blinkDuration);
+        expect(ghost.endFrighten).toHaveBeenCalled();
+      });
     });
 
-    test("endFrighten should reset mode to random and clear timers", () => {
-      ghost.frighten();
-      ghost.blinkTimer = "intervalId";
+    describe("endFrighten", () => {
+      test("should reset mode to random and clear timers", () => {
+        ghost.frightenedTimer = "timeoutId";
+        ghost.blinkTimer = "intervalId";
 
+        ghost.endFrighten();
+
+        expect(global.clearInterval).toHaveBeenCalledWith("intervalId");
+        expect(global.clearTimeout).toHaveBeenCalledWith("timeoutId");
+
+        expect(ghost.mode).toBe("random");
+        expect(ghost.currentImage).toBe(ghost.images[0]);
+        expect(ghost.blinkTimer).toBeNull();
+        expect(ghost.frightenedTimer).toBeNull();
+        expect(ghost.lastDirection).toEqual({ dx: 0, dy: 0 });
+      });
+    });
+
+    test("should not clear timers that have not been set", () => {
       ghost.endFrighten();
-      expect(ghost.mode).toBe("random");
-      expect(ghost.currentImage).toBe(ghost.images[0]);
-      expect(global.clearInterval).toHaveBeenCalledWith("intervalId");
-      expect(ghost.blinkTimer).toBeNull();
-      expect(ghost.frightenedTimer).toBeNull();
-      expect(ghost.lastDirection).toEqual({ dx: 0, dy: 0 });
+
+      expect(global.clearInterval).not.toHaveBeenCalled();
+      expect(global.clearTimeout).not.toHaveBeenCalled();
     });
   });
 
   describe("reset", () => {
     beforeEach(() => {
-      originalClearTimeout = global.clearTimeout;
-      originalClearInterval = global.clearInterval;
-
-      global.clearTimeout = jest.fn();
-      global.clearInterval = jest.fn();
+      jest.useFakeTimers();
+      jest.spyOn(global, "setTimeout");
+      jest.spyOn(global, "clearTimeout");
+      jest.spyOn(global, "setInterval");
+      jest.spyOn(global, "clearInterval");
     });
 
     afterEach(() => {
-      global.clearTimeout = originalClearTimeout;
-      global.clearInterval = originalClearInterval;
+      jest.useRealTimers();
+    });
+
+    test("should not clear timers that have not been set", () => {
+      ghost.reset();
+
+      expect(global.clearInterval).not.toHaveBeenCalled();
+      expect(global.clearTimeout).not.toHaveBeenCalled();
     });
 
     test("should restore initial state and clear timers", () => {
@@ -211,6 +256,11 @@ describe("Ghost", () => {
     });
 
     test("should choose A* in chase mode", () => {
+      ghost.finder.findPath.mockReturnValue([
+        [1, 1],
+        [1, 2],
+      ]);
+
       ghost.mode = "chase";
       const spy = jest.spyOn(ghost, "chooseDirectionUsingAStar");
       ghost.move({ x: 1, y: 2 });
@@ -227,9 +277,11 @@ describe("Ghost", () => {
       ghost.isCollideWithWall.mockReturnValue(false);
       ghost.lastDirection = { dx: 2, dy: 0 }; // Moving right
 
+      const initialPosition = { x: ghost.position.x, y: ghost.position.y };
+
       ghost.chooseRandomDirection();
       expect(ghost.isCollideWithWall).toHaveBeenCalledTimes(4);
-      expect(ghost.position).not.toBe({ x: 20, y: 20 }); // Position should change
+      expect(ghost.position).not.toEqual(initialPosition); // Position should change
       expect(ghost.lastDirection).not.toEqual({ dx: -2, dy: 0 }); // Should not reverse direction
     });
 
@@ -247,6 +299,20 @@ describe("Ghost", () => {
       // Should move down
       expect(ghost.position).not.toBe({ x: 20, y: 22 });
       expect(ghost.lastDirection).toEqual({ dx: 0, dy: 2 });
+    });
+
+    test("does not update position if no valid moves are available", () => {
+      ghost.isCollideWithWall.mockReturnValue(true);
+      ghost.lastDirection = { dx: 2, dy: 0 }; // Moving right
+
+      const initialPosition = { x: ghost.position.x, y: ghost.position.y };
+      const initialLastDirection = { ...ghost.lastDirection };
+
+      ghost.chooseRandomDirection();
+      expect(ghost.isCollideWithWall).toHaveBeenCalledTimes(4);
+
+      expect(ghost.position).toEqual(initialPosition); // Position should not change
+      expect(ghost.lastDirection).toEqual(initialLastDirection); // Direction should not change
     });
   });
 
@@ -278,42 +344,67 @@ describe("Ghost", () => {
       expect(pos).toBe(6);
     });
 
-    test("chooseDirectionUsingAStar computes correct path and updates position", () => {
-      jest.spyOn(ghost, "updatePositionBasedOnPath");
-      ghost.chooseDirectionUsingAStar(140, 140);
-      expect(ghost.grid.clone).toHaveBeenCalled();
-      expect(ghost.finder.findPath).toHaveBeenCalledWith(
-        1,
-        1,
-        7,
-        7,
-        ghost.grid
-      );
-      expect(ghost.updatePositionBasedOnPath).toHaveBeenCalledWith([1, 2]);
+    describe("chooseDirectionUsingAStar", () => {
+      beforeEach(() => {
+        jest.spyOn(ghost, "updatePositionBasedOnPath");
+      });
+
+      test("computes correct path and updates position if path length is greater than 1", () => {
+        ghost.finder.findPath.mockReturnValue([
+          [1, 1],
+          [1, 2],
+        ]);
+        ghost.chooseDirectionUsingAStar(140, 140);
+        expect(ghost.grid.clone).toHaveBeenCalled();
+        expect(ghost.finder.findPath).toHaveBeenCalledWith(
+          1,
+          1,
+          7,
+          7,
+          ghost.grid
+        );
+        expect(ghost.updatePositionBasedOnPath).toHaveBeenCalledWith([1, 2]);
+      });
+
+      test("computes correct path and does not update position if path length is less than 1", () => {
+        ghost.finder.findPath.mockReturnValue([[1, 1]]);
+        ghost.chooseDirectionUsingAStar(140, 140);
+        expect(ghost.grid.clone).toHaveBeenCalled();
+        expect(ghost.finder.findPath).toHaveBeenCalledWith(
+          1,
+          1,
+          7,
+          7,
+          ghost.grid
+        );
+        expect(ghost.updatePositionBasedOnPath).not.toHaveBeenCalled();
+      });
     });
 
-    test("updatePositionBasedOnPath moves ghost left correctly", () => {
-      ghost.updatePositionBasedOnPath([0, 1]);
-      expect(ghost.lastDirection.dx).toBe(-1 * ghost.velocity);
-      expect(ghost.lastDirection.dy).toBe(0);
-    });
+    describe("updatePositionBasedOnPath", () => {
+      test("moves ghost left correctly", () => {
+        ghost.updatePositionBasedOnPath([0, 1]);
+        expect(ghost.lastDirection.dx).toBe(-1 * ghost.velocity);
+        expect(ghost.lastDirection.dy).toBe(0);
+      });
 
-    test("updatePositionBasedOnPath moves ghost right correctly", () => {
-      ghost.updatePositionBasedOnPath([2, 1]);
-      expect(ghost.lastDirection.dx).toBe(1 * ghost.velocity);
-      expect(ghost.lastDirection.dy).toBe(0);
-    });
+      test("moves ghost right correctly", () => {
+        ghost.updatePositionBasedOnPath([2, 1]);
+        expect(ghost.lastDirection.dx).toBe(1 * ghost.velocity);
+        expect(ghost.lastDirection.dy).toBe(0);
+      });
 
-    test("updatePositionBasedOnPath moves ghost down correctly", () => {
-      ghost.updatePositionBasedOnPath([1, 5]);
-      expect(ghost.lastDirection.dx).toBe(0);
-      expect(ghost.lastDirection.dy).toBe(1 * ghost.velocity);
-    });
+      test("moves ghost down correctly", () => {
+        ghost.updatePositionBasedOnPath([1, 5]);
+        expect(ghost.lastDirection.dx).toBe(0);
+        expect(ghost.lastDirection.dy).toBe(1 * ghost.velocity);
+      });
 
-    test("updatePositionBasedOnPath moves ghost up correctly", () => {
-      ghost.updatePositionBasedOnPath([1, 0]);
-      expect(ghost.lastDirection.dx).toBe(0);
-      expect(ghost.lastDirection.dy).toBe(-1 * ghost.velocity);
+      test("moves ghost up correctly", () => {
+        ghost.updatePositionBasedOnPath([1, 0]);
+        expect(ghost.lastDirection.dx).toBe(0);
+        expect(ghost.lastDirection.dy).toBe(-1 * ghost.velocity);
+      });
     });
   });
 });
@@ -335,23 +426,47 @@ describe("GhostManager", () => {
     manager = new GhostManager(ghosts);
   });
 
-  test("update should call move and draw on each ghost", () => {
-    manager.update({ x: 50, y: 50 }, 100);
-    ghosts.forEach((ghost) => {
-      expect(ghost.move).toHaveBeenCalledWith({ x: 50, y: 50 });
-      expect(ghost.draw).toHaveBeenCalled();
+  describe("update", () => {
+    test("should call move and draw on each ghost", () => {
+      manager.update({ x: 50, y: 50 }, 100);
+      ghosts.forEach((ghost) => {
+        expect(ghost.move).toHaveBeenCalledWith({ x: 50, y: 50 });
+        expect(ghost.draw).toHaveBeenCalled();
+      });
     });
-  });
 
-  test("update should handle mode transitions correctly", () => {
-    manager.mode = "chase";
-    manager.update({}, 3001); // deltaTime to exceed chaseDuration
-    expect(manager.mode).toBe("random");
-    expect(manager.modeDuration).toBe(0);
+    test("should handle chase and random mode transitions correctly", () => {
+      manager.mode = "chase";
+      manager.update({}, 3001); // deltaTime to exceed chaseDuration
+      expect(manager.mode).toBe("random");
+      expect(manager.modeDuration).toBe(0);
 
-    manager.update({}, 7001); // deltaTime to exceed randomDuration
-    expect(manager.mode).toBe("chase");
-    expect(manager.modeDuration).toBe(0);
+      manager.update({}, 7001); // deltaTime to exceed randomDuration
+      expect(manager.mode).toBe("chase");
+      expect(manager.modeDuration).toBe(0);
+    });
+
+    test("should not change from chase mode to random mode if any ghost is frightened", () => {
+      ghosts[2].mode = "frighten";
+
+      manager.mode = "chase";
+      manager.modeDuration = 3000; // Setup duration at the transition point
+      manager.update({}, 1); // Minimal deltaTime to check condition
+
+      expect(manager.mode).toBe("chase");
+      expect(manager.modeDuration).toBe(3001);
+    });
+
+    test("should not change from random mode to chase mode if any ghost is frightened", () => {
+      ghosts[2].mode = "frighten";
+
+      manager.mode = "random";
+      manager.modeDuration = 7000; // Setup duration at the transition point
+      manager.update({}, 1); // Minimal deltaTime to check condition
+
+      expect(manager.mode).toBe("random");
+      expect(manager.modeDuration).toBe(7001);
+    });
   });
 
   test("draw should call draw on each ghost", () => {
