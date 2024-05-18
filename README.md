@@ -24,7 +24,6 @@ In chase mode, the ghosts use the A\* search algorithm to find the shortest path
 
 <img alt="chase_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/f6f1fdc1-ee72-48b7-8d96-d11ef853e91e" width="696">
 
-
 ### Frighten
 
 After Pac-Man consumes a power pellet, ghosts enter frighten mode. In this mode, Pac-Man can eat the ghosts without losing a life.
@@ -43,7 +42,13 @@ To optimize performance, the walls — which are static elements — are drawn o
 
 ## Testing
 
-Unit tests are implemented using the Jest framework to ensure the reliability of the game mechanics. The Jest coverage report is as follows:
+Unit tests are implemented using the Jest framework and can be executed by running the following command:
+
+```bash
+npx jest
+```
+
+The Jest coverage report shows over 96% coverage in branches and functions, and over 99% in statements and lines:
 
 <img width="956" alt="jest_coverage" src="https://github.com/jessicaluong/pacman-js/assets/96930184/29a12419-ff72-4250-9005-6c6471bce796">
 
