@@ -26,7 +26,7 @@ In chase mode, the ghosts use the A\* search algorithm to find the shortest path
 
 ### Frighten
 
-After Pac-Man consumes a power pellet, ghosts enter frighten mode. In this mode, Pac-Man can eat the ghosts without losing a life.
+After Pac-Man consumes a power pellet, ghosts enter frighten mode for a total of 10 seconds. They start blinking in the last 2 seconds of this mode. During frighten mode, Pac-Man can eat the ghosts without losing a life.
 
 <img alt="frighten_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/4f2966d6-3fd0-44be-aa1e-b95b9ce85efe" width="696">
 
