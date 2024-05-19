@@ -50,7 +50,7 @@ npx jest
 
 The Jest coverage report shows over 96% coverage in branches and functions, and over 99% in statements and lines:
 
-<img width="956" alt="jest_coverage" src="https://github.com/jessicaluong/pacman-js/assets/96930184/29a12419-ff72-4250-9005-6c6471bce796">
+<img width="956" alt="jest_coverage" src="https://github.com/jessicaluong/pacman-js/assets/96930184/294581ac-0031-4607-94e8-ef44ef1a46ad">
 
 ## Credits
 
