@@ -42,11 +42,29 @@ To optimize performance, the walls — which are static elements — are drawn o
 
 ## Testing
 
-Unit tests are implemented using the Jest framework and can be executed by running the following command:
+### Running Tests
 
-```bash
-npx jest
-```
+Unit tests are implemented using the Jest framework. To run the unit tests for this project, follow these steps:
+
+1. Clone the repository:
+
+   ```
+   git clone https://github.com/jessicaluong/pacman-js.git
+   ```
+
+2. Install the required dependencies:
+
+   ```
+   cd pacman-js
+   npm install
+   ```
+
+3. Execute the tests:
+   ```
+   npx jest
+   ```
+
+### Coverage
 
 The Jest coverage report shows over 96% coverage in branches and functions, and over 99% in statements and lines:
 
