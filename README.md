@@ -54,4 +54,5 @@ The Jest coverage report shows over 96% coverage in branches and functions, and 
 
 ## Credits
 
-The Pac-Man movement logic in this project was adapted from the following repository: [Pac-Man JS by Servet Gulnaroglu](https://github.com/servetgulnaroglu/pacman-js)
+The Pac-Man movement logic in this project was adapted from the following repository: [Pac-Man JS by Servet Gulnaroglu](https://github.com/servetgulnaroglu/pacman-js).  
+The library used for A\* pathfinding is from [PathFinding.js](https://github.com/qiao/PathFinding.js/).
