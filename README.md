@@ -1,6 +1,6 @@
 # Pac-Man
 
-This project is a remake of the classic Pac-Man game. It utilizes JavaScript with graphical outputs handled through HTML5 Canvas.
+This project is a remake of the classic Pac-Man game.
 
 ## How to Play
 
@@ -8,29 +8,51 @@ To start the game, visit [Pac-Man Game](https://jessicaluong.github.io/pacman-js
 
 Control Pac-Man using the arrow keys. Dodge the ghosts while collecting all the pellets on the map. The game concludes when all pellets are collected or Pac-Man loses all three lives.
 
-## Ghost Modes
+## Technologies Used
+
+### Game
+
+![Frontend technologies used](https://skillicons.dev/icons?i=js,html,css)
+
+The frontend is built with HTML, CSS, and JavaScript. It utilizes JavaScript with graphical outputs handled through HTML5 Canvas. The files are located at the root of the repository for easy deployment to GitHub Pages. These folders and their contents are:
+
+- `assets`: Contains images used throughout the game.
+- `css`: Includes the CSS file for basic styling the game interface.
+- `js`: Holds JavaScript files responsible for game logic and interactions.
+
+The entry point for GitHub Pages is `index.html`, located in the root directory.
+
+### Server
+
+![Backend technologies used](https://skillicons.dev/icons?i=nodejs,express,mongodb)
+
+I am currently working on adding a leaderboard to this game. It is being implemented using Node.js and Express, with MongoDB serving as the database.
+
+## Features
+
+### Ghost Modes
 
 The ghosts switch between three behavioral modes: chase, random, and frighten. The gameplay alternates between 7 seconds of random mode and 3 seconds of chase mode.
 
-### Random
+#### Random
 
 During random mode, ghosts move unpredictably around the maze.
 
 <img alt="random_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/47596b79-473e-4fe6-9747-f0357b0449fc" width="696">
 
-### Chase
+#### Chase
 
 In chase mode, the ghosts use the A\* search algorithm to find the shortest path to Pac-Man.
 
 <img alt="chase_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/f6f1fdc1-ee72-48b7-8d96-d11ef853e91e" width="696">
 
-### Frighten
+#### Frighten
 
 After Pac-Man consumes a power pellet, ghosts enter frighten mode for a total of 10 seconds. They start blinking in the last 2 seconds of this mode. During frighten mode, Pac-Man can eat the ghosts without losing a life.
 
 <img alt="frighten_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/4f2966d6-3fd0-44be-aa1e-b95b9ce85efe" width="696">
 
-## Game Over
+### Game Over
 
 The game ends either when Pac-Man collects all pellets or loses all lives. A game over screen appears with an option to restart the game.
 
