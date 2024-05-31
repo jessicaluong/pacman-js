@@ -68,7 +68,7 @@ export function setupGameEnvironment() {
   const { bgCtx, gameCtx, gameCanvas } = initializeCanvas();
 
   const mazeManager = new MazeManager(maze);
-  const gameStateDisplay = new GameStateDisplay();
+  const gameStateDisplay = new GameStateDisplay(gameCtx, gameCanvas);
   const pelletManager = new PelletManager(gameCtx, mazeManager, cellSize);
 
   const wallManager = new WallManager(bgCtx, mazeManager, cellSize);

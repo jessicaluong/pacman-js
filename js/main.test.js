@@ -42,6 +42,7 @@ jest.mock("./setup.js", () => {
         pelletScore: 1,
         powerPelletScore: 10,
         decrementLives: jest.fn(),
+        displayGameOver: jest.fn(),
       },
       pelletManager: { reset: jest.fn(), draw: jest.fn() },
     }),
@@ -154,7 +155,7 @@ describe("Game", () => {
       jest.spyOn(game.ghostManager, "update");
       jest.spyOn(game, "updatePacmanPosition");
       jest.spyOn(game, "checkCollisionWithGhosts");
-      jest.spyOn(game, "displayGameOver");
+      jest.spyOn(game.gameStateDisplay, "displayGameOver");
       game.gameStateDisplay.lives = 3;
       game.pelletManager.pelletCount = 20;
     });
@@ -180,21 +181,28 @@ describe("Game", () => {
       game.gameStateDisplay.lives = -1; // Game over condition
       game.update(Date.now());
       expect(cancelAnimationFrame).toHaveBeenCalledWith(game.requestId);
-      expect(game.displayGameOver).toHaveBeenCalled();
+      expect(game.gameStateDisplay.displayGameOver).toHaveBeenCalled();
+      expect(game.gameCanvas.addEventListener).toHaveBeenCalledWith(
+        "restartGame",
+        game.restartGameBound
+      );
     });
 
     test("should cancel the game loop and show game over when all pellets are collected", () => {
       game.pelletManager.pelletCount = 0; // Game over condition
       game.update(Date.now());
       expect(cancelAnimationFrame).toHaveBeenCalledWith(game.requestId);
-      expect(game.displayGameOver).toHaveBeenCalled();
+      expect(game.gameStateDisplay.displayGameOver).toHaveBeenCalled();
+      expect(game.gameCanvas.addEventListener).toHaveBeenCalledWith(
+        "restartGame",
+        game.restartGameBound
+      );
     });
   });
 
+  // TODO:
   test("restartGame should reset all components and prepare the game for a restart", () => {
     jest.spyOn(window, "cancelAnimationFrame");
-
-    jest.spyOn(game.gameCanvas, "removeEventListener");
     jest.spyOn(game.pacman, "reset");
     jest.spyOn(game.mazeManager, "resetMaze");
     jest.spyOn(game.pelletManager, "reset");
@@ -206,12 +214,8 @@ describe("Game", () => {
 
     expect(cancelAnimationFrame).toHaveBeenCalledWith(game.requestId);
     expect(game.gameCanvas.removeEventListener).toHaveBeenCalledWith(
-      "click",
-      game.clickListener
-    );
-    expect(game.gameCanvas.removeEventListener).toHaveBeenCalledWith(
-      "mousemove",
-      game.mouseMoveListener
+      "restartGame",
+      game.restartGameBound
     );
     expect(game.pacman.reset).toHaveBeenCalled();
     expect(
@@ -350,73 +354,6 @@ describe("Game", () => {
       expect(game.pacman.reset).not.toHaveBeenCalled();
       expect(ghost.reset).toHaveBeenCalled();
     });
-  });
-
-  test("displayGameOver should display game over screen and setup button", () => {
-    jest.spyOn(game.gameCtx, "fillRect");
-    jest.spyOn(game.gameCtx, "fillText");
-    jest.spyOn(game, "setupRestartButton");
-
-    game.displayGameOver();
-
-    // Check that fillRect was called immediately after setting fillStyle to rgba
-    expect(game.gameCtx.fillRect).toHaveBeenCalledWith(
-      0,
-      0,
-      game.gameCanvas.width,
-      game.gameCanvas.height
-    );
-    expect(game.gameCtx.fillStyle).toBe("white"); // Last known state
-
-    expect(game.gameCtx.fillText).toHaveBeenCalledWith(
-      "Game Over",
-      game.gameCanvas.width / 2,
-      game.gameCanvas.width / 2
-    );
-    expect(game.gameCtx.fillText).toHaveBeenCalledWith(
-      "Click to restart",
-      game.gameCanvas.width / 2,
-      game.gameCanvas.width / 2 + 50
-    );
-
-    expect(game.setupRestartButton).toHaveBeenCalled();
-  });
-
-  test("setupRestartButton should setup button and handle click events correctly", () => {
-    jest.spyOn(game, "restartGame");
-
-    const mockEvent = {
-      clientX: 460,
-      clientY: 440,
-    };
-    const rect = {
-      left: 100,
-      top: 100,
-    };
-    jest.spyOn(game.gameCanvas, "getBoundingClientRect").mockReturnValue(rect);
-
-    game.setupRestartButton(
-      game.gameCanvas.width / 2,
-      game.gameCanvas.height / 2,
-      "Click to restart"
-    );
-
-    expect(game.gameCanvas.addEventListener).toHaveBeenCalledWith(
-      "click",
-      expect.any(Function)
-    );
-    expect(game.gameCanvas.addEventListener).toHaveBeenCalledWith(
-      "mousemove",
-      expect.any(Function)
-    );
-
-    // Simulate a click within the button area
-    game.clickListener(mockEvent);
-    expect(game.restartGame).toHaveBeenCalled();
-
-    // Simulate mouse movement over the button
-    game.mouseMoveListener(mockEvent);
-    expect(game.gameCanvas.style.cursor).toBe("pointer");
   });
 
   test("bindEvents should add keydown event listener to window", () => {

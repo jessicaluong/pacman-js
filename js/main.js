@@ -23,10 +23,10 @@ export class Game {
     this.pelletManager = pelletManager;
 
     this.requestId = null;
-    this.mouseMoveListener = null;
-    this.clickListener = null;
     this.collisionCooldown = 0;
     this.lastUpdateTime = null;
+
+    this.restartGameBound = this.restartGame.bind(this);
 
     this.pacmanPosition = { x: 10, y: 13 };
 
@@ -119,22 +119,20 @@ export class Game {
       this.gameStateDisplay.lives < 0
     ) {
       cancelAnimationFrame(this.requestId);
-      this.displayGameOver();
+      this.gameStateDisplay.displayGameOver();
+      this.gameCanvas.addEventListener("restartGame", this.restartGameBound);
     } else {
       this.requestId = requestAnimationFrame(this.update.bind(this));
     }
   }
 
   /**
-   * Resets the game state to its initial configuration, including all game entities and settings,
-   * and prepares the game for a fresh start.
-   * This method is typically called after a game over.
+   * Resets the game state to its initial configuration, including all game entities and settings.
+   * This method is called after a game over.
    */
   restartGame() {
     cancelAnimationFrame(this.requestId);
-    this.gameCanvas.removeEventListener("click", this.clickListener);
-    this.gameCanvas.removeEventListener("mousemove", this.mouseMoveListener);
-    this.gameCanvas.style.cursor = "default";
+    this.gameCanvas.removeEventListener("restartGame", this.restartGameBound);
 
     this.pacman.reset();
     this.ghosts.forEach((ghost) => ghost.reset());
@@ -284,69 +282,6 @@ export class Game {
         ghost.reset();
         break;
     }
-  }
-
-  /**
-   * Displays the game over screen, with a button to restart the game.
-   * Sets up event listeners to handle clicks for restarting the game.
-   */
-  displayGameOver() {
-    this.gameCtx.fillStyle = "rgba(0, 0, 0, 0.5)";
-    this.gameCtx.fillRect(0, 0, this.gameCanvas.width, this.gameCanvas.height);
-    const xPos = this.gameCanvas.width / 2;
-    const yPos = this.gameCanvas.width / 2;
-    this.gameCtx.fillStyle = "white";
-    this.gameCtx.textAlign = "center";
-    this.gameCtx.font = "24px 'Roboto Mono', monospace";
-    this.gameCtx.fillText("Game Over", xPos, yPos);
-    const buttonText = "Click to restart";
-    this.gameCtx.font = "18px 'Roboto Mono', monospace";
-    this.gameCtx.fillText(buttonText, xPos, yPos + 50);
-    this.setupRestartButton(xPos, yPos, buttonText);
-  }
-
-  /**
-   * Sets up the interactive button on the game over screen.
-   * Adds mouse event listeners for click and mouse movement to interact with the button.
-   * @param {number} xPos - Horizontal center of the canvas.
-   * @param {number} yPos - Vertical center where the game over text is displayed.
-   * @param {string} buttonText - The text displayed on the restart button.
-   */
-  setupRestartButton(xPos, yPos, buttonText) {
-    const buttonX = xPos - this.gameCtx.measureText(buttonText).width / 2;
-    const buttonY = yPos + 50 - 18; // Position based on text size
-    const buttonWidth = this.gameCtx.measureText(buttonText).width;
-    const buttonHeight = 24;
-
-    this.clickListener = (event) => {
-      const rect = this.gameCanvas.getBoundingClientRect();
-      const clickX = event.clientX - rect.left;
-      const clickY = event.clientY - rect.top;
-      if (
-        clickX >= buttonX &&
-        clickX <= buttonX + buttonWidth &&
-        clickY >= buttonY &&
-        clickY <= buttonY + buttonHeight
-      ) {
-        this.restartGame();
-      }
-    };
-
-    this.mouseMoveListener = (event) => {
-      const rect = this.gameCanvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
-      this.gameCanvas.style.cursor =
-        mouseX >= buttonX &&
-        mouseX <= buttonX + buttonWidth &&
-        mouseY >= buttonY &&
-        mouseY <= buttonY + buttonHeight
-          ? "pointer"
-          : "default";
-    };
-
-    this.gameCanvas.addEventListener("click", this.clickListener);
-    this.gameCanvas.addEventListener("mousemove", this.mouseMoveListener);
   }
 
   /**
