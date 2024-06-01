@@ -19,6 +19,10 @@ h3 {
   position: relative;
   height: 460px;
   width: 420px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #gameCanvas,
@@ -38,4 +42,24 @@ h3 {
   background-image: url("../assets/pacman_closed.png");
   display: inline-block;
   background-size: cover;
+}
+
+input {
+  position: absolute;
+  display: none;
+}
+
+#userInput {
+  background: transparent;
+  color: white;
+  font-size: 24px;
+  font-family: "Roboto Mono", monospace;
+  text-align: left;
+  border: none;
+  outline: none;
+  width: 90px;
+  letter-spacing: 15px;
+  text-transform: uppercase;
+  display: none;
+  margin-top: -80px;
 }

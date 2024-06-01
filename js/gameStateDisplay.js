@@ -13,8 +13,7 @@ export class GameStateDisplay {
 
     this.ctx = ctx;
     this.canvas = canvas;
-    this.mouseMoveListener = null;
-    this.clickListener = null;
+    this.buttons = [];
   }
 
   /**
@@ -62,76 +61,180 @@ export class GameStateDisplay {
   }
 
   /**
-   * Displays the game over screen, with a button to restart the game.
+   * Displays the game over screen, with a button to restart the game. FIXME:
    * Sets up event listeners to handle clicks for restarting the game.
    */
   displayGameOver() {
-    this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     const xPos = this.canvas.width / 2;
     const yPos = this.canvas.width / 2;
+
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.font = "24px 'Roboto Mono', monospace";
-    this.ctx.fillText("Game Over", xPos, yPos);
-    const buttonText = "Click to restart";
-    this.ctx.font = "18px 'Roboto Mono', monospace";
-    this.ctx.fillText(buttonText, xPos, yPos + 50);
-    this.setupRestartButton(xPos, yPos, buttonText);
+    this.ctx.font = "bold 30px 'Roboto Mono', monospace";
+    this.ctx.fillText("Game Over", xPos, yPos - 10);
+
+    this.buttons = [
+      {
+        text: "Play again!",
+        xPos: xPos,
+        yPos: yPos + 50,
+        action: () => {
+          this.canvas.dispatchEvent(new Event("restartGame"));
+          this.resetCanvas();
+        },
+      },
+      {
+        text: "Display scores",
+        xPos: xPos,
+        yPos: yPos + 100,
+        action: () => this.displayHighScores(),
+      },
+    ];
+    this.setupButtons();
+    this.addEventListeners();
   }
 
-  /**
-   * Sets up the interactive button on the game over screen.
-   * Adds mouse event listeners for click and mouse movement to interact with the button.
-   * @param {number} xPos - Horizontal center of the canvas.
-   * @param {number} yPos - Vertical center where the game over text is displayed.
-   * @param {string} buttonText - The text displayed on the restart button.
-   */
-  setupRestartButton(xPos, yPos, buttonText) {
-    const buttonX = xPos - this.ctx.measureText(buttonText).width / 2;
-    const buttonY = yPos + 50 - 18; // Position based on text size
-    const buttonWidth = this.ctx.measureText(buttonText).width;
-    const buttonHeight = 24;
+  displayAddScore() {
+    this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    const xPos = this.canvas.width / 2;
+    const yPos = this.canvas.width / 2 + 30;
 
-    this.clickListener = (event) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const clickX = event.clientX - rect.left;
-      const clickY = event.clientY - rect.top;
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "center";
+    this.ctx.font = "bold 24px 'Roboto Mono', monospace";
+    this.ctx.fillText("New high score!", xPos, yPos - 100);
+    this.ctx.fillText("_ _ _", xPos - 8, yPos - 40);
+
+    this.ctx.font = "bold 18px 'Roboto Mono', monospace";
+    this.ctx.fillText("Enter your initials", xPos, yPos);
+
+    const inputElement = document.getElementById("userInput");
+    inputElement.style.display = "block";
+    inputElement.focus();
+
+    this.buttons = [
+      {
+        text: "Add score",
+        xPos: xPos,
+        yPos: yPos + 50,
+        action: () => {
+          if (inputElement.value.length === 3) {
+            inputElement.style.display = "none";
+            inputElement.value = "";
+            this.addScore();
+          }
+        },
+      },
+      {
+        text: "Play again!",
+        xPos: xPos,
+        yPos: yPos + 100,
+        action: () => {
+          inputElement.style.display = "none";
+          inputElement.value = "";
+          this.resetCanvas();
+          this.canvas.dispatchEvent(new Event("restartGame"));
+        },
+      },
+    ];
+    this.setupButtons();
+    this.addEventListeners();
+  }
+
+  displayHighScores() {
+    console.log("todo: display leaderboard");
+  }
+
+  addScore() {
+    console.log("todo: add score");
+    // this.displayGameOver();
+  }
+
+  setupButtons() {
+    const padding = 5;
+    const textSize = 18;
+
+    this.buttons.forEach((button) => {
+      button.width = 150;
+      button.height = 30;
+      button.x = button.xPos - button.width / 2;
+      button.y = button.yPos - textSize;
+
+      this.ctx.strokeStyle = "white";
+      this.ctx.beginPath();
+      this.ctx.roundRect(
+        button.x - padding / 2,
+        button.y - padding / 2,
+        button.width + padding,
+        button.height + padding,
+        3
+      );
+      this.ctx.stroke();
+      this.ctx.fillStyle = "#54CBFE";
+      this.ctx.fill();
+
+      this.ctx.font = `${textSize}px 'Roboto Mono', monospace`;
+      this.ctx.fillStyle = "#fff";
+      this.ctx.fillText(button.text, button.xPos, button.yPos);
+    });
+  }
+
+  handleClick(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+    this.buttons.forEach((button) => {
       if (
-        clickX >= buttonX &&
-        clickX <= buttonX + buttonWidth &&
-        clickY >= buttonY &&
-        clickY <= buttonY + buttonHeight
+        clickX >= button.x &&
+        clickX <= button.x + button.width &&
+        clickY >= button.y &&
+        clickY <= button.y + button.height
       ) {
-        this.resetCanvas();
-        const restartEvent = new Event("restartGame");
-        this.canvas.dispatchEvent(restartEvent);
+        button.action();
       }
-    };
+    });
+  }
 
-    this.mouseMoveListener = (event) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
-      this.canvas.style.cursor =
-        mouseX >= buttonX &&
-        mouseX <= buttonX + buttonWidth &&
-        mouseY >= buttonY &&
-        mouseY <= buttonY + buttonHeight
-          ? "pointer"
-          : "default";
-    };
+  handleMouseMove(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    let isOverButton = false;
+    this.buttons.forEach((button) => {
+      if (
+        mouseX >= button.x &&
+        mouseX <= button.x + button.width &&
+        mouseY >= button.y &&
+        mouseY <= button.y + button.height
+      ) {
+        isOverButton = true;
+      }
+    });
+    this.canvas.style.cursor = isOverButton ? "pointer" : "default";
+  }
 
-    this.canvas.addEventListener("click", this.clickListener);
-    this.canvas.addEventListener("mousemove", this.mouseMoveListener);
+  addEventListeners() {
+    this.canvas.addEventListener("click", this.handleClick.bind(this));
+    this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
+  }
+
+  removeEventListeners() {
+    this.canvas.removeEventListener("click", this.handleClick.bind(this));
+    this.canvas.removeEventListener(
+      "mousemove",
+      this.handleMouseMove.bind(this)
+    );
   }
 
   /**
    * Resets the canvas to its default state by removing event listeners and resetting the cursor style.
    */
   resetCanvas() {
-    this.canvas.removeEventListener("click", this.clickListener);
-    this.canvas.removeEventListener("mousemove", this.mouseMoveListener);
+    this.removeEventListeners();
     this.canvas.style.cursor = "default";
+    this.buttons = [];
   }
 }
