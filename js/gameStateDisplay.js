@@ -69,17 +69,22 @@ export class GameStateDisplay {
    * the score submission screen is shown; otherwise, the game over screen is displayed.
    */
   async handleEndGame() {
-    const scores = await this.fetchScores();
-    if (scores.length > 0 && this.score > 0) {
-      const rank = this.determineRank(scores);
-      if (rank <= 10) {
-        this.displayAddScoreScreen();
+    try {
+      const scores = await this.fetchScores();
+      if (scores.length > 0 && this.score > 0) {
+        const rank = this.determineRank(scores);
+        if (rank <= 10) {
+          this.displayAddScoreScreen();
+        } else {
+          this.displayGameOverScreen(scores);
+        }
       } else {
+        console.log("No scores to display or error fetching scores");
         this.displayGameOverScreen(scores);
       }
-    } else {
-      console.log("No scores to display or error fetching scores");
-      this.displayGameOverScreen(scores);
+    } catch (err) {
+      console.error("Error fetching scores:", err);
+      this.displayGameOverScreen([]);
     }
   }
 
@@ -229,6 +234,10 @@ export class GameStateDisplay {
     this.ctx.font = "bold 18px 'Roboto Mono', monospace";
     this.ctx.fillText("Rank     Score    Name", xPos, yPos + 40);
 
+    const leaderboardDiv = document.getElementById("leaderboard");
+    const list = leaderboardDiv.querySelector("ul");
+    list.innerHTML = "";
+
     this.buttons = [
       {
         text: "Play again!",
@@ -236,9 +245,7 @@ export class GameStateDisplay {
         yPos: yPos + 360,
         action: () => {
           this.resetCanvas();
-          const leaderboardDiv = document.getElementById("leaderboard");
           leaderboardDiv.style.display = "none";
-          leaderboardDiv.querySelector("ul").innerHTML = "";
           this.canvas.dispatchEvent(new Event("restartGame"));
         },
       },
@@ -247,10 +254,6 @@ export class GameStateDisplay {
     this.addEventListeners();
 
     const topTenScores = scores.slice(0, 10);
-    const leaderboardDiv = document.getElementById("leaderboard");
-    const list = leaderboardDiv.querySelector("ul");
-    list.innerHTML = "";
-
     topTenScores.forEach((score, index) => {
       const listItem = document.createElement("li");
       listItem.innerHTML = `<span>${index + 1}</span>
