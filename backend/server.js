@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 5050;
 
 app.use(
   cors({
-    origin: "https://jessicaluong.github.io/pacman-js/",
+    origin: "https://jessicaluong.github.io/",
     methods: ["GET", "POST"],
   })
 );
