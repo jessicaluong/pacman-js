@@ -14,6 +14,9 @@ export class GameStateDisplay {
     this.ctx = ctx;
     this.canvas = canvas;
     this.buttons = [];
+
+    this.boundHandleClick = this.handleClick.bind(this);
+    this.boundHandleMouseMove = this.handleMouseMove.bind(this);
   }
 
   /**
@@ -199,6 +202,7 @@ export class GameStateDisplay {
         },
       },
     ];
+
     this.setupButtons();
     this.addEventListeners();
   }
@@ -392,19 +396,16 @@ export class GameStateDisplay {
    * to ensure 'this' context is maintained correctly.
    */
   addEventListeners() {
-    this.canvas.addEventListener("click", this.handleClick.bind(this));
-    this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
+    this.canvas.addEventListener("click", this.boundHandleClick);
+    this.canvas.addEventListener("mousemove", this.boundHandleMouseMove);
   }
 
   /**
    * Removes event listeners from the canvas for click and mouse move events.
    */
   removeEventListeners() {
-    this.canvas.removeEventListener("click", this.handleClick.bind(this));
-    this.canvas.removeEventListener(
-      "mousemove",
-      this.handleMouseMove.bind(this)
-    );
+    this.canvas.removeEventListener("click", this.boundHandleClick);
+    this.canvas.removeEventListener("mousemove", this.boundHandleMouseMove);
   }
 
   /**
