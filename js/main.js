@@ -119,8 +119,9 @@ export class Game {
       this.gameStateDisplay.lives < 0
     ) {
       cancelAnimationFrame(this.requestId);
-      this.gameStateDisplay.displayGameOver();
+      this.gameCanvas.removeEventListener("restartGame", this.restartGameBound);
       this.gameCanvas.addEventListener("restartGame", this.restartGameBound);
+      this.gameStateDisplay.handleEndGame();
     } else {
       this.requestId = requestAnimationFrame(this.update.bind(this));
     }

@@ -60,11 +60,45 @@ export class GameStateDisplay {
     }
   }
 
+  async handleEndGame() {
+    const scores = await this.fetchScores();
+    if (scores.length > 0) {
+      const rank = this.determineRank(scores);
+      if (rank <= 10) {
+        this.displayAddScoreScreen();
+      } else {
+        this.displayGameOverScreen(scores);
+      }
+    } else {
+      console.log("No scores to display or error fetching scores");
+      this.displayGameOverScreen(scores);
+    }
+  }
+
+  async fetchScores() {
+    try {
+      const res = await fetch("http://localhost:5050/api/v1/scores");
+      if (!res.ok) {
+        throw new Error(`HTTP error, status = ${res.status}`);
+      }
+      const data = await res.json();
+      return data.scores;
+    } catch (err) {
+      console.error("Error fetching scores:", err);
+      return [];
+    }
+  }
+
+  determineRank(scores) {
+    const rank = scores.findIndex((score) => this.score > score.points) + 1;
+    return rank === 0 ? scores.length + 1 : rank;
+  }
+
   /**
    * Displays the game over screen, with a button to restart the game. FIXME:
    * Sets up event listeners to handle clicks for restarting the game.
    */
-  displayGameOver() {
+  displayGameOverScreen(scores) {
     this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     const xPos = this.canvas.width / 2;
@@ -81,22 +115,28 @@ export class GameStateDisplay {
         xPos: xPos,
         yPos: yPos + 50,
         action: () => {
-          this.canvas.dispatchEvent(new Event("restartGame"));
           this.resetCanvas();
+          this.canvas.dispatchEvent(new Event("restartGame"));
         },
       },
-      {
+    ];
+
+    if (scores.length > 0) {
+      this.buttons.push({
         text: "Display scores",
         xPos: xPos,
         yPos: yPos + 100,
-        action: () => this.displayHighScores(),
-      },
-    ];
+        action: () => {
+          this.displayHighScoresScreen(scores);
+        },
+      });
+    }
+
     this.setupButtons();
     this.addEventListeners();
   }
 
-  displayAddScore() {
+  displayAddScoreScreen() {
     this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     const xPos = this.canvas.width / 2;
@@ -121,10 +161,10 @@ export class GameStateDisplay {
         xPos: xPos,
         yPos: yPos + 50,
         action: () => {
-          if (inputElement.value.length === 3) {
+          if (/^[A-Za-z]{3}$/.test(inputElement.value)) {
+            this.addScore(inputElement.value);
             inputElement.style.display = "none";
             inputElement.value = "";
-            this.addScore();
           }
         },
       },
@@ -144,13 +184,96 @@ export class GameStateDisplay {
     this.addEventListeners();
   }
 
-  displayHighScores() {
-    console.log("todo: display leaderboard");
+  displayHighScoresScreen(scores) {
+    this.resetCanvas();
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    const xPos = this.canvas.width / 2;
+    const yPos = this.canvas.width / 6;
+
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "center";
+    this.ctx.font = "bold 24px 'Roboto Mono', monospace";
+    this.ctx.fillText("High Scores", xPos, yPos);
+
+    this.ctx.font = "bold 18px 'Roboto Mono', monospace";
+    this.ctx.fillText("Rank     Score    Name", xPos, yPos + 40);
+
+    this.buttons = [
+      {
+        text: "Play again!",
+        xPos: xPos,
+        yPos: yPos + 360,
+        action: () => {
+          this.resetCanvas();
+          const leaderboardDiv = document.getElementById("leaderboard");
+          leaderboardDiv.style.display = "none";
+          leaderboardDiv.querySelector("ul").innerHTML = "";
+          this.canvas.dispatchEvent(new Event("restartGame"));
+        },
+      },
+    ];
+    this.setupButtons();
+    this.addEventListeners();
+
+    const topTenScores = scores.slice(0, 10);
+    const leaderboardDiv = document.getElementById("leaderboard");
+    const list = leaderboardDiv.querySelector("ul");
+    list.innerHTML = "";
+
+    topTenScores.forEach((score, index) => {
+      const listItem = document.createElement("li");
+      listItem.innerHTML = `<span>${index + 1}</span>
+          <span>${score.points}</span>
+          <span>${score.name.toUpperCase()}</span>`;
+      list.appendChild(listItem);
+    });
+
+    leaderboardDiv.style.display = "block";
   }
 
-  addScore() {
-    console.log("todo: add score");
-    // this.displayGameOver();
+  async postScore(scoreData) {
+    try {
+      const res = await fetch("http://localhost:5050/api/v1/scores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(scoreData),
+      });
+      if (res.ok) {
+        console.log("Score successfully posted.");
+        return true;
+      } else {
+        throw new Error(`HTTP error, status = ${res.status}`);
+      }
+    } catch (err) {
+      console.error("Error fetching scores:", err);
+    }
+  }
+
+  async addScore(initials) {
+    const scoreData = {
+      name: initials,
+      points: this.score,
+    };
+
+    try {
+      const postSuccess = await this.postScore(scoreData);
+      if (postSuccess) {
+        const scores = await this.fetchScores();
+        this.displayHighScoresScreen(scores);
+      } else {
+        console.error("Failed to post score.");
+      }
+    } catch (err) {
+      console.error(
+        "An error occurred while posting and fetching scores:",
+        err
+      );
+    }
   }
 
   setupButtons() {

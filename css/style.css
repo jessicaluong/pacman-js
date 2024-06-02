@@ -47,6 +47,7 @@ h3 {
 input {
   position: absolute;
   display: none;
+  z-index: 1;
 }
 
 #userInput {
@@ -62,4 +63,41 @@ input {
   text-transform: uppercase;
   display: none;
   margin-top: -80px;
+}
+
+#leaderboard {
+  position: absolute;
+  display: none;
+  z-index: 1;
+  width: 250px;
+  background: transparent;
+  color: white;
+  top: 100px;
+}
+
+#leaderboard ul {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  list-style-type: none;
+}
+
+#leaderboard li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+#leaderboard li span {
+  width: 80px;
+}
+
+#leaderboard li span:nth-last-child(2) {
+  text-align: center;
+}
+
+#leaderboard li span:last-child {
+  width: auto;
+  flex-grow: 1;
+  text-align: right;
 }
