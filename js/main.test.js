@@ -43,6 +43,7 @@ jest.mock("./setup.js", () => {
         powerPelletScore: 10,
         decrementLives: jest.fn(),
         displayGameOver: jest.fn(),
+        handleEndGame: jest.fn(),
       },
       pelletManager: { reset: jest.fn(), draw: jest.fn() },
     }),
@@ -181,7 +182,11 @@ describe("Game", () => {
       game.gameStateDisplay.lives = -1; // Game over condition
       game.update(Date.now());
       expect(cancelAnimationFrame).toHaveBeenCalledWith(game.requestId);
-      expect(game.gameStateDisplay.displayGameOver).toHaveBeenCalled();
+      expect(game.gameStateDisplay.handleEndGame).toHaveBeenCalled();
+      expect(game.gameCanvas.removeEventListener).toHaveBeenCalledWith(
+        "restartGame",
+        game.restartGameBound
+      );
       expect(game.gameCanvas.addEventListener).toHaveBeenCalledWith(
         "restartGame",
         game.restartGameBound
@@ -192,7 +197,11 @@ describe("Game", () => {
       game.pelletManager.pelletCount = 0; // Game over condition
       game.update(Date.now());
       expect(cancelAnimationFrame).toHaveBeenCalledWith(game.requestId);
-      expect(game.gameStateDisplay.displayGameOver).toHaveBeenCalled();
+      expect(game.gameStateDisplay.handleEndGame).toHaveBeenCalled();
+      expect(game.gameCanvas.removeEventListener).toHaveBeenCalledWith(
+        "restartGame",
+        game.restartGameBound
+      );
       expect(game.gameCanvas.addEventListener).toHaveBeenCalledWith(
         "restartGame",
         game.restartGameBound
