@@ -60,6 +60,11 @@ export class GameStateDisplay {
     }
   }
 
+  /**
+   * Handles the end of a game session. It fetches the list of scores, determines the player's
+   * rank based on the current game score. If the player's score qualifies as one of the top 10,
+   * the score submission screen is shown; otherwise, the game over screen is displayed.
+   */
   async handleEndGame() {
     const scores = await this.fetchScores();
     if (scores.length > 0 && this.score > 0) {
@@ -75,6 +80,9 @@ export class GameStateDisplay {
     }
   }
 
+  /**
+   * Fetches the list of sorted scores from the server.
+   */
   async fetchScores() {
     try {
       const res = await fetch("https://pacman-js.onrender.com/api/v1/scores");
@@ -89,14 +97,19 @@ export class GameStateDisplay {
     }
   }
 
+  /**
+   * Determines the player's rank based on their current game score.
+   * @param {Array} scores - Array of score objects.
+   */
   determineRank(scores) {
     const rank = scores.findIndex((score) => this.score > score.points) + 1;
     return rank === 0 ? scores.length + 1 : rank;
   }
 
   /**
-   * Displays the game over screen, with a button to restart the game. FIXME:
-   * Sets up event listeners to handle clicks for restarting the game.
+   * Displays the game over screen. Offers a button to restart the game,
+   * and if there are scores available, an additional button to display them.
+   * @param {Array} scores - Array of score objects to potentially display.
    */
   displayGameOverScreen(scores) {
     this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
@@ -136,6 +149,12 @@ export class GameStateDisplay {
     this.addEventListeners();
   }
 
+  /**
+   * Displays a screen for adding a new high score.
+   * Includes a prompt for the user to enter their initials.
+   * Validates input for correct format (3 alphabetical characters).
+   * Provides buttons to submit the score and/or play again.
+   */
   displayAddScoreScreen() {
     this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -184,6 +203,11 @@ export class GameStateDisplay {
     this.addEventListeners();
   }
 
+  /**
+   * Displays a high scores screen showing up to the top ten scores.
+   * Presents a list of scores with ranking, points, and names, allowing the user to restart the game.
+   * @param {Array} scores - Array of score objects to display.
+   */
   displayHighScoresScreen(scores) {
     this.resetCanvas();
 
@@ -234,6 +258,11 @@ export class GameStateDisplay {
     leaderboardDiv.style.display = "block";
   }
 
+  /**
+   * Posts a new score to the server by sending a POST request to the server's scores endpoint with the score data.
+   * @param {Object} scoreData - The data representing the score to post, includes the player's initials and their score.
+   * @returns {Promise<boolean>} A promise that resolves to true if the score was successfully posted, otherwise logs an error.
+   */
   async postScore(scoreData) {
     try {
       const res = await fetch("https://pacman-js.onrender.com/api/v1/scores", {
@@ -254,6 +283,12 @@ export class GameStateDisplay {
     }
   }
 
+  /**
+   * Adds a new score using the initials provided by the user. This method prepares the score data,
+   * calls `postScore` to send the data to the server, and if successful, fetches and displays the updated high scores.
+   * Handles errors during the post and fetch process by logging them.
+   * @param {string} initials - The initials of the player to be associated with the score.
+   */
   async addScore(initials) {
     const scoreData = {
       name: initials,
@@ -276,6 +311,9 @@ export class GameStateDisplay {
     }
   }
 
+  /**
+   * Sets up the visual appearance and positioning of interactive buttons on the canvas.
+   */
   setupButtons() {
     const padding = 5;
     const textSize = 18;
@@ -305,6 +343,11 @@ export class GameStateDisplay {
     });
   }
 
+  /**
+   * Handles click events on the canvas by determining if the click was on any of the buttons.
+   * Executes the button's action if a click is detected within its boundaries.
+   * @param {MouseEvent} event - The mouse event that triggered this handler.
+   */
   handleClick(event) {
     const rect = this.canvas.getBoundingClientRect();
     const clickX = event.clientX - rect.left;
@@ -321,6 +364,11 @@ export class GameStateDisplay {
     });
   }
 
+  /**
+   * Handles mouse move events on the canvas to change the cursor to a pointer when it hovers over a button.
+   * This provides a visual indication that the element under the cursor is interactive.
+   * @param {MouseEvent} event - The mouse event that triggered this handler.
+   */
   handleMouseMove(event) {
     const rect = this.canvas.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
@@ -339,11 +387,18 @@ export class GameStateDisplay {
     this.canvas.style.cursor = isOverButton ? "pointer" : "default";
   }
 
+  /**
+   * Attaches event listeners to the canvas for click and mouse move events, using method binding
+   * to ensure 'this' context is maintained correctly.
+   */
   addEventListeners() {
     this.canvas.addEventListener("click", this.handleClick.bind(this));
     this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
   }
 
+  /**
+   * Removes event listeners from the canvas for click and mouse move events.
+   */
   removeEventListeners() {
     this.canvas.removeEventListener("click", this.handleClick.bind(this));
     this.canvas.removeEventListener(
