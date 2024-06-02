@@ -62,7 +62,7 @@ export class GameStateDisplay {
 
   async handleEndGame() {
     const scores = await this.fetchScores();
-    if (scores.length > 0) {
+    if (scores.length > 0 && this.score > 0) {
       const rank = this.determineRank(scores);
       if (rank <= 10) {
         this.displayAddScoreScreen();
