@@ -77,7 +77,7 @@ export class GameStateDisplay {
 
   async fetchScores() {
     try {
-      const res = await fetch("http://localhost:5050/api/v1/scores");
+      const res = await fetch("https://pacman-js.onrender.com/api/v1/scores");
       if (!res.ok) {
         throw new Error(`HTTP error, status = ${res.status}`);
       }
@@ -236,7 +236,7 @@ export class GameStateDisplay {
 
   async postScore(scoreData) {
     try {
-      const res = await fetch("http://localhost:5050/api/v1/scores", {
+      const res = await fetch("https://pacman-js.onrender.com/api/v1/scores", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
