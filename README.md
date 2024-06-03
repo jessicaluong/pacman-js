@@ -6,27 +6,21 @@ This project is a remake of the classic Pac-Man game.
 
 To start the game, visit [Pac-Man Game](https://jessicaluong.github.io/pacman-js/).
 
-Control Pac-Man using the arrow keys. Dodge the ghosts while collecting all the pellets on the map. The game concludes when all pellets are collected or Pac-Man loses all three lives.
+Control Pac-Man using the arrow keys. Dodge the ghosts while collecting all the pellets on the map. The game ends when all pellets are collected or Pac-Man loses all three lives.
 
 ## Technologies Used
 
-### Game
+### Front End
 
-![Frontend technologies used](https://skillicons.dev/icons?i=js,html,css)
+![Front end technologies used](https://skillicons.dev/icons?i=js)
 
-The frontend is built with HTML, CSS, and JavaScript. It utilizes JavaScript with graphical outputs handled through HTML5 Canvas. The files are located at the root of the repository for easy deployment to GitHub Pages. These folders and their contents are:
+The front end is developed using JavaScript, with graphical outputs handled through HTML5 Canvas. All front-end files are located at the root of the repository for easy deployment to GitHub Pages.
 
-- `assets`: Contains images used throughout the game.
-- `css`: Includes the CSS file for basic styling the game interface.
-- `js`: Holds JavaScript files responsible for game logic and interactions.
+### Back End
 
-The entry point for GitHub Pages is `index.html`, located in the root directory.
+![Back end technologies used](https://skillicons.dev/icons?i=nodejs,express,mongodb)
 
-### Server
-
-![Backend technologies used](https://skillicons.dev/icons?i=nodejs,express,mongodb)
-
-I am currently working on adding a leaderboard to this game. It is being implemented using Node.js and Express, with MongoDB serving as the database.
+The back end uses Node.js and Express, with MongoDB serving as the database to manage a persistent leaderboard. This setup ensures that player scores are stored and retrieved efficiently.
 
 ## Features
 
@@ -52,9 +46,25 @@ After Pac-Man consumes a power pellet, ghosts enter frighten mode for a total of
 
 <img alt="frighten_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/4f2966d6-3fd0-44be-aa1e-b95b9ce85efe" width="696">
 
+### Leaderboard
+
+Players achieving a score within the top 10, provided their score exceeds zero, are given the opportunity to enter their initials on the leaderboard:
+
+<insert image>
+
+Following this, the leaderboard will display their score among the top entries:
+
+<insert image>
+
 ### Game Over
 
-The game ends either when Pac-Man collects all pellets or loses all lives. A game over screen appears with an option to restart the game.
+Players whose scores do not rank within the top 10 will encounter a Game Over screen. In the event of server response delays, the following screen will be displayed:
+
+<insert image>
+
+Otherwise, a standard Game Over screen will appear, offering players the options to restart the game or view the leaderboard:
+
+<insert image>
 
 <img width="696" alt="gameover3" src="https://github.com/jessicaluong/pacman-js/assets/96930184/0e0ba8e2-7ddf-454c-931f-83b5e50147ba">
 
@@ -66,7 +76,7 @@ To optimize performance, the walls — which are static elements — are drawn o
 
 ### Running Tests
 
-Unit tests are implemented using the Jest framework. To run the unit tests for this project, follow these steps:
+Unit tests have only been written for the front end. They are implemented using the Jest framework and can be run by following these steps:
 
 1. Clone the repository:
 
