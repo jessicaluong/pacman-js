@@ -40,7 +40,6 @@ In chase mode, the ghosts use the A\* search algorithm to find the shortest path
 
 <img width="477" alt="chase_gif" src="https://github.com/jessicaluong/pacman-js/assets/96930184/6bef6639-2a8a-433f-a112-e0cfb29f0c9a">
 
-
 #### Frighten
 
 After Pac-Man consumes a power pellet, ghosts enter frighten mode for a total of 10 seconds. They start blinking in the last 2 seconds of this mode. During frighten mode, Pac-Man can eat the ghosts without losing a life.
@@ -56,7 +55,6 @@ Players achieving a score within the top 10, provided their score exceeds zero, 
 Following this, the leaderboard will display their score among the top entries:
 
 <img width="477" alt="high_scores" src="https://github.com/jessicaluong/pacman-js/assets/96930184/fdd0ab15-bf70-463b-902c-fd87a752f197">
-
 
 ### Game Over
 
@@ -100,7 +98,7 @@ Unit tests have only been written for the front end. They are implemented using 
 
 The Jest coverage report shows over 96% coverage in branches and functions, and over 99% in statements and lines:
 
-<img width="956" alt="jest_coverage" src="https://github.com/jessicaluong/pacman-js/assets/96930184/294581ac-0031-4607-94e8-ef44ef1a46ad">
+<img width="850" alt="jest_coverage" src="https://github.com/jessicaluong/pacman-js/assets/96930184/294581ac-0031-4607-94e8-ef44ef1a46ad">
 
 ## Credits
 
