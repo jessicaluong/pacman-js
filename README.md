@@ -32,41 +32,41 @@ The ghosts switch between three behavioral modes: chase, random, and frighten. T
 
 During random mode, ghosts move unpredictably around the maze.
 
-<img alt="random_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/47596b79-473e-4fe6-9747-f0357b0449fc" width="696">
+<img width="477" alt="random_gif" src="https://github.com/jessicaluong/pacman-js/assets/96930184/e3088fca-120f-46bc-bf7d-d5bfca4cf7dc">
 
 #### Chase
 
 In chase mode, the ghosts use the A\* search algorithm to find the shortest path to Pac-Man.
 
-<img alt="chase_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/f6f1fdc1-ee72-48b7-8d96-d11ef853e91e" width="696">
+<img width="477" alt="chase_gif" src="https://github.com/jessicaluong/pacman-js/assets/96930184/6bef6639-2a8a-433f-a112-e0cfb29f0c9a">
+
 
 #### Frighten
 
 After Pac-Man consumes a power pellet, ghosts enter frighten mode for a total of 10 seconds. They start blinking in the last 2 seconds of this mode. During frighten mode, Pac-Man can eat the ghosts without losing a life.
 
-<img alt="frighten_mode" src="https://github.com/jessicaluong/pacman-js/assets/96930184/4f2966d6-3fd0-44be-aa1e-b95b9ce85efe" width="696">
+<img width="477" alt="frighten_gif" src="https://github.com/jessicaluong/pacman-js/assets/96930184/5bbd06b2-f248-459b-9c4e-1f4585804c34">
 
 ### Leaderboard
 
 Players achieving a score within the top 10, provided their score exceeds zero, are given the opportunity to enter their initials on the leaderboard:
 
-<insert image>
+<img width="477" alt="add_score" src="https://github.com/jessicaluong/pacman-js/assets/96930184/87d2f59f-8d04-46e8-bc41-a3e063730521">
 
 Following this, the leaderboard will display their score among the top entries:
 
-<insert image>
+<img width="477" alt="high_scores" src="https://github.com/jessicaluong/pacman-js/assets/96930184/fdd0ab15-bf70-463b-902c-fd87a752f197">
+
 
 ### Game Over
 
 Players whose scores do not rank within the top 10 will encounter a Game Over screen. In the event of server response delays, the following screen will be displayed:
 
-<insert image>
+<img width="477" alt="game_over_no_fetch" src="https://github.com/jessicaluong/pacman-js/assets/96930184/029fc951-fc6b-41c6-bb00-64462f9e188d">
 
 Otherwise, a standard Game Over screen will appear, offering players the options to restart the game or view the leaderboard:
 
-<insert image>
-
-<img width="696" alt="gameover3" src="https://github.com/jessicaluong/pacman-js/assets/96930184/0e0ba8e2-7ddf-454c-931f-83b5e50147ba">
+<img width="477" alt="game_over" src="https://github.com/jessicaluong/pacman-js/assets/96930184/7b061f0c-5d0a-4348-82db-bc704c047a13">
 
 ## Optimizations
 
