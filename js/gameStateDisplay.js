@@ -69,8 +69,12 @@ export class GameStateDisplay {
    * the score submission screen is shown; otherwise, the game over screen is displayed.
    */
   async handleEndGame() {
+    const controller = new AbortController();
+    const { signal } = controller;
+    setTimeout(() => controller.abort(), 2000);
+
     try {
-      const scores = await this.fetchScores();
+      const scores = await this.fetchScores(signal);
       if (scores.length > 0 && this.score > 0) {
         const rank = this.determineRank(scores);
         if (rank <= 10) {
@@ -91,9 +95,11 @@ export class GameStateDisplay {
   /**
    * Fetches the list of sorted scores from the server.
    */
-  async fetchScores() {
+  async fetchScores(signal) {
     try {
-      const res = await fetch("https://pacman-js.onrender.com/api/v1/scores");
+      const res = await fetch("https://pacman-js.onrender.com/api/v1/scores", {
+        signal,
+      });
       if (!res.ok) {
         throw new Error(`HTTP error, status = ${res.status}`);
       }

@@ -158,12 +158,44 @@ describe("GameStateDisplay", () => {
         expect.any(Error)
       );
     });
+
+    test("aborts the fetch call due to a timeout and handles the error", async () => {
+      let controller = new AbortController();
+      jest
+        .spyOn(global, "AbortController")
+        .mockImplementation(() => controller);
+
+      const fetchPromise = new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new DOMException("Request aborted.", "AbortError")),
+          1000
+        )
+      );
+      display.fetchScores.mockReturnValue(fetchPromise);
+
+      await display.handleEndGame();
+
+      controller.abort();
+
+      expect(display.displayAddScoreScreen).not.toHaveBeenCalled();
+      expect(display.displayGameOverScreen).toHaveBeenCalledWith([]);
+      expect(console.error).toHaveBeenCalledWith(
+        "Error fetching scores:",
+        expect.any(DOMException)
+      );
+    });
   });
 
   describe("fetchScores", () => {
+    let controller;
+
     beforeEach(() => {
       global.fetch = jest.fn();
       global.console = { log: jest.fn(), error: jest.fn() };
+      controller = new AbortController();
+      jest
+        .spyOn(global, "AbortController")
+        .mockImplementation(() => controller);
     });
 
     afterEach(() => {
@@ -177,10 +209,11 @@ describe("GameStateDisplay", () => {
         json: () => Promise.resolve({ scores: mockScores }),
       });
 
-      const scores = await display.fetchScores();
+      const scores = await display.fetchScores(controller.signal);
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://pacman-js.onrender.com/api/v1/scores"
+        "https://pacman-js.onrender.com/api/v1/scores",
+        { signal: controller.signal }
       );
       expect(scores).toEqual(mockScores);
     });
@@ -191,10 +224,11 @@ describe("GameStateDisplay", () => {
         status: 404,
       });
 
-      const scores = await display.fetchScores();
+      const scores = await display.fetchScores(controller.signal);
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://pacman-js.onrender.com/api/v1/scores"
+        "https://pacman-js.onrender.com/api/v1/scores",
+        { signal: controller.signal }
       );
       expect(scores).toEqual([]);
       expect(console.error).toHaveBeenCalledWith(
